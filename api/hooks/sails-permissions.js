@@ -80,7 +80,7 @@ function initializeFixtures (sails) {
       return require('../../config/fixtures/user').create(this.roles, userModel);
     })
     .then(function () {
-      return User.findOne({ email: sails.config.permissions.adminEmail });
+      return User.findOne({ username: sails.config.permissions.adminUsername });
     })
     .then(function (user) {
       sails.log.verbose('sails-permissions: created admin user:', user);
