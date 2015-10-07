@@ -29,6 +29,19 @@ module.exports = function (req, res, next) {
   if (req.options.unknownModel) {
     return next();
   }
+  var actionsMap = {
+    'list':'GET',
+    'read':'GET',
+    'new':'POST',
+    'create':'POST',
+    'edit':'PUT',
+    'update':'PUT',
+    'delete':'DELETE',
+
+  }
+  if (req.options.action in actionsMap){
+    options.method = actionsMap[req.options.action]
+  }
 
   PermissionService
     .findModelPermissions(options)
