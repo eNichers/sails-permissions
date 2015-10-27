@@ -31,12 +31,13 @@ module.exports = {
        * TODO remove enum and support permissions based on all controller
        * actions, including custom ones
        */
-      enum: [
-        'create',
-        'read',
-        'update',
-        'delete'
-      ]
+      // enum: [
+        //   'create',
+        //   'read',
+        //   'update',
+        //   'delete'
+        // ]
+
     },
 
     relation: {
