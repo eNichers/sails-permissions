@@ -84,9 +84,8 @@ function initializeFixtures(sails) {
         })
         .then(function (roles) {
             this.roles = roles;
-
             var userModel = _.find(this.models, {
-                name: 'User'
+                name: 'user'
             });
             return require('../../config/fixtures/user')
                 .create(this.roles, userModel);
