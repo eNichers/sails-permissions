@@ -10,9 +10,12 @@ exports.create = function () {
             name: 'admin'
         }, {
             name: 'admin'
-        })
-        //,
+        }),
         //Role.findOrCreate({ name: 'registered' }, { name: 'registered' }),
-        //Role.findOrCreate({ name: 'public' }, { name: 'public' })
+        Role.findOrCreate({
+            name: 'public'
+        }, {
+            name: 'public'
+        })
     ]);
 };

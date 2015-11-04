@@ -47,7 +47,8 @@ var Promise = require('bluebird');
 exports.create = function (roles, models, admin) {
 
     return Promise.all([
-            grantAdminPermissions(roles, models, admin)
+            grantAdminPermissions(roles, models, admin),
+            //grantPublicPermissions(roles, models),
             // ,
             // grantRegisteredPermissions(roles, models, admin)
         ])
@@ -101,61 +102,49 @@ function grantAdminPermissions(roles, models, admin) {
 
     }));
 
-    // var permissions = _.flatten(_.map(models, function (modelEntity) {
-    //     var model = sails.models[modelEntity.identity];
-
-    //     return _.map(grants.admin, function (permission) {
-    //         var newPermission = {
-    //             model: modelEntity.id,
-    //             action: permission.action,
-    //             role: adminRole.id,
-    //         };
-    //         return Permission.findOrCreate(newPermission, newPermission);
-    //     });
-    // }));
-
     return Promise.all(permissions);
 }
 
-function grantRegisteredPermissions(roles, models, admin) {
-    var registeredRole = _.find(roles, {
-        name: 'registered'
-    });
-    var permissions = [{
-        model: _.find(models, {
-                name: 'Permission'
-            })
-            .id,
-        action: 'read',
-        role: registeredRole.id
-    }, {
-        model: _.find(models, {
-                name: 'Model'
-            })
-            .id,
-        action: 'read',
-        role: registeredRole.id
-    }, {
-        model: _.find(models, {
-                name: 'User'
-            })
-            .id,
-        action: 'update',
-        role: registeredRole.id,
-        relation: 'owner'
-    }, {
-        model: _.find(models, {
-                name: 'User'
-            })
-            .id,
-        action: 'read',
-        role: registeredRole.id,
-        relation: 'owner'
-    }];
 
-    return Promise.all(
-        _.map(permissions, function (permission) {
-            return Permission.findOrCreate(permission, permission);
-        })
-    );
-}
+// function grantRegisteredPermissions(roles, models, admin) {
+//     var registeredRole = _.find(roles, {
+//         name: 'registered'
+//     });
+//     var permissions = [{
+//         model: _.find(models, {
+//                 name: 'Permission'
+//             })
+//             .id,
+//         action: 'read',
+//         role: registeredRole.id
+//     }, {
+//         model: _.find(models, {
+//                 name: 'Model'
+//             })
+//             .id,
+//         action: 'read',
+//         role: registeredRole.id
+//     }, {
+//         model: _.find(models, {
+//                 name: 'User'
+//             })
+//             .id,
+//         action: 'update',
+//         role: registeredRole.id,
+//         relation: 'owner'
+//     }, {
+//         model: _.find(models, {
+//                 name: 'User'
+//             })
+//             .id,
+//         action: 'read',
+//         role: registeredRole.id,
+//         relation: 'owner'
+//     }];
+
+//     return Promise.all(
+//         _.map(permissions, function (permission) {
+//             return Permission.findOrCreate(permission, permission);
+//         })
+//     );
+// }

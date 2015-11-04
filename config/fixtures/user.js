@@ -12,6 +12,31 @@ exports.create = function (roles, userModel) {
     if (_.isEmpty(sails.config.permissions.adminEmail)) {
         throw new Error('sails.config.permissions.adminEmail is not set');
     }
+
+    var anonymous = sails.config.permissions.anonymousUsername || 'anonymous';
+    User.findOne({
+            username: anonymous
+        })
+        .then(function (user) {
+            if (user) return user;
+
+            sails.log.info('sails-permissions: anonymous user does not exist; creating...');
+            return User.register({
+                username: sails.config.permissions.anonymousUsername,
+                password: sails.config.permissions.anonymousPassword,
+                email: sails.config.permissions.anonymousEmail,
+                roles: [_.find(roles, {
+                        name: 'public'
+                    })
+                    .id
+                ],
+                createdBy: 1,
+                owner: 1,
+                model: userModel.id
+            });
+        });
+
+
     return User.findOne({
             username: sails.config.permissions.adminUsername
         })

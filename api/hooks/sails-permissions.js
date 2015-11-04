@@ -71,6 +71,7 @@ module.exports = function (sails) {
  * Permissions, and creates an admin user.
  */
 function initializeFixtures(sails) {
+
     return require('../../config/fixtures/model')
         .createModels()
         .bind({})
@@ -87,6 +88,7 @@ function initializeFixtures(sails) {
             var userModel = _.find(this.models, {
                 name: 'user'
             });
+
             return require('../../config/fixtures/user')
                 .create(this.roles, userModel);
         })
@@ -102,6 +104,7 @@ function initializeFixtures(sails) {
             return user.save();
         })
         .then(function (admin) {
+
             return require('../../config/fixtures/permission')
                 .create(this.roles, this.models, admin);
         })
