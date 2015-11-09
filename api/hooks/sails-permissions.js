@@ -15,6 +15,21 @@ module.exports = function (sails) {
          */
         _modelCache: {},
 
+        defaults: {
+            adminEmail: process.env.ADMIN_EMAIL || 'admin@example.com',
+            adminUsername: process.env.ADMIN_USERNAME || 'admin',
+            adminPassword: process.env.ADMIN_PASSWORD || 'admin1234',
+
+            afterEvent: [],
+
+
+
+            allowUnknownModelDefinitions: false,
+            anonymousUsername: process.env.ANONYMOUS_USERNAME || 'anonymous',
+            anonymousPassword: process.env.ANONYMOUS_PASSWORD || '12345678',
+            anonymousEmail: process.env.ANONYMOUS_EMAIL || 'anonymous@example.com',
+        },
+
         configure: function () {
             if (!_.isObject(sails.config.permissions)) sails.config.permissions = {};
 
