@@ -45,7 +45,6 @@ module.exports = function (req, res, next) {
 
     PermissionService.findTargetObjects(req)
         .then(function (objects) {
-            console.log(objects);
             // PermissionService.isAllowedToPerformAction checks if the user has 'user' based permissions (vs role or owner based permissions)
             return PermissionService.isAllowedToPerformAction(objects, req.user, action,
                     ModelService.getTargetModelName(req), req.body)
