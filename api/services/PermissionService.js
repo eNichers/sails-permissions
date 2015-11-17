@@ -9,7 +9,42 @@ var Promise = require('bluebird');
 var findRecords = require('sails/lib/hooks/blueprints/actions/find');
 var wlFilter = require('waterline-criteria');
 
+var anonymousPermessionsCache = null;
+
 module.exports = {
+     findUserModelPermissions: function (user,callback) {
+        var isAnonymous = user.username == sails.config.permissions.anonymousUsername; 
+        if(isAnonymous && anonymousPermessionsCache){
+            callback(anonymousPermessionsCache);
+            return;
+        }
+
+        return User.findOne({
+            id: user.id
+        })
+        .populate('roles')
+        .then(function (user) {
+            return Model.find({}, {
+                    action: 1,
+                    attributes: 0
+
+                })
+                .populate('permissions', {
+                    role: user.roles[0].id
+                }).then(function(modelPermissions){
+                    if(isAnonymous){
+                        anonymousPermessionsCache = modelPermissions;
+                    }  
+                    callback(modelPermissions);
+                });
+        }); 
+        
+        
+
+    },
+    resetAnonymousPermessionsCache: function(){
+        anonymousPermessionsCache = null;
+    },
 
     /**
      * Given an object, or a list of objects, return true if the list contains
