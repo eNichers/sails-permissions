@@ -9,7 +9,7 @@ module.exports = {
 
   description: [
     'Defines a particular `action` that a `Role` can perform on a `Model`.',
-    'A `Eemployee` can perform an `action` on a `Model` by having a `Role` which',
+    'A `Employee` can perform an `action` on a `Model` by having a `Role` which',
     'grants the necessary `Permission`.'
   ].join(' '),
 
@@ -62,11 +62,11 @@ module.exports = {
     },
 
     /**
-     * The Eemployee to which this Permission grants create, read, update, and/or
+     * The Employee to which this Permission grants create, read, update, and/or
      * delete privileges.
      */
     Employee: {
-      model: 'Eemployee'
+      model: 'Employee'
       // Validate manually
     },
 
