@@ -14,7 +14,7 @@ module.exports = function (req, res, next) {
     // or if this is the last policy, the controller 
 
     var callback = function (employee) {
-        employee.isAdmin = employee.employeeName == sails.config.permissions.adminEmployeename;
+        employee.isAdmin = employee.employeeName == sails.config.permissions.adminEmployeeName;
         employee.isAnonymous = employee.employeeName == sails.config.permissions.anonymousEmployeename;
 
         PermissionService.findEmployeeModelPermissions(employee,function(modelPermissions){

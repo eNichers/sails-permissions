@@ -20,7 +20,7 @@ module.exports = function (sails) {
             controllersRoot: "",
 
             adminEmail: process.env.ADMIN_EMAIL || 'admin@example.com',
-            adminEmployeename: process.env.ADMIN_USERNAME || 'admin',
+            adminEmployeeName: process.env.ADMIN_EMPLOYEENAME || 'admin',
             adminPassword: process.env.ADMIN_PASSWORD || 'admin1234',
 
             afterEvent: [],
@@ -112,7 +112,7 @@ function initializeFixtures(sails) {
         })
         .then(function () {
             return Employee.findOne({
-                employeeName: sails.config.permissions.adminEmployeename
+                employeeName: sails.config.permissions.adminEmployeeName
             });
         })
         .then(function (employee) {
