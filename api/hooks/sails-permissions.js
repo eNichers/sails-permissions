@@ -16,6 +16,9 @@ module.exports = function (sails) {
         _modelCache: {},
 
         defaults: {
+
+            controllersRoot: "",
+
             adminEmail: process.env.ADMIN_EMAIL || 'admin@example.com',
             adminEmployeename: process.env.ADMIN_USERNAME || 'admin',
             adminPassword: process.env.ADMIN_PASSWORD || 'admin1234',
@@ -48,13 +51,13 @@ module.exports = function (sails) {
                 return sails.lower();
             }
 
-            if (!validatePolicyConfig(sails)) {
-                sails.log.error('One or more required policies are missing.');
-                sails.log.error(
-                    'Please see README for installation instructions: https://github.com/tjwebb/sails-permissions'
-                );
-                return sails.lower();
-            }
+            // if (!validatePolicyConfig(sails)) {
+            //     sails.log.error('One or more required policies are missing.');
+            //     sails.log.error(
+            //         'Please see README for installation instructions: https://github.com/tjwebb/sails-permissions'
+            //     );
+            //     return sails.lower();
+            // }
 
 
             sails.after(sails.config.permissions.afterEvent, function () {
