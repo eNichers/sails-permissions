@@ -8,9 +8,12 @@ exports.createModels = function () {
     sails.log.verbose('sails-permissions: syncing waterline models');
 
     var prefix = sails.config.permissions.controllersRoot;
+    var startsWith = function (string, prefix) {
+        return string.slice(0, prefix.length) == prefix;
+    }
     var models = _.compact(_.map(sails.controllers, function (controller, name) {
         if(prefix && prefix.length > 0){
-            if(!_.startsWith(name,prefix+'/')){
+            if(!startsWith(name,prefix+'/')){
                 return false;
             }
         }
