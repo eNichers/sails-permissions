@@ -1,18 +1,18 @@
-var anonymousUser = null;
+var anonymousEmployee = null;
 
 module.exports = {
 
-    findAnonymousUser: function (cb) {
-        if (anonymousUser) {
-            cb(anonymousUser);
+    findAnonymousEmployee: function (cb) {
+        if (anonymousEmployee) {
+            cb(anonymousEmployee);
         }
         else {
-            User.findOne({
-                    username: sails.config.permissions.anonymousUsername
+            Employee.findOne({
+                    employeeName: sails.config.permissions.anonymousEmployeename
                 })
-                .then(function (user) {
-                    anonymousUser = user;
-                    cb(user);
+                .then(function (employee) {
+                    anonymousEmployee = employee;
+                    cb(employee);
                 });
         }
     }

@@ -13,11 +13,11 @@ describe('PermissionController', function () {
     agent = request.agent(sails.hooks.http.app);
 
     agent
-      .post('/user')
+      .post('/employee')
       .set('Authorization', adminAuth.Authorization)
       .send({
-        username: 'newuser1',
-        email: 'newuser1@example.com',
+        employeeName: 'newemployee1',
+        email: 'newemployee1@example.com',
         password: 'lalalal1234'
       })
       .expect(200, function (err) {
@@ -36,8 +36,8 @@ describe('PermissionController', function () {
               }
             },
             action: "delete",
-            relation: "user",
-            user: 2
+            relation: "employee",
+            employee: 2
           })
           .expect(201, function (err) {
             if (err)
@@ -46,7 +46,7 @@ describe('PermissionController', function () {
             agent
               .post('/auth/local')
               .send({
-                identifier: 'newuser1',
+                identifier: 'newemployee1',
                 password: 'lalalal1234'
               })
               .expect(200)
@@ -64,7 +64,7 @@ describe('PermissionController', function () {
 
   describe('Permission Controller', function () {
 
-    describe('User with Registered Role', function () {
+    describe('Employee with Registered Role', function () {
 
       describe('#find()', function () {
 
@@ -88,7 +88,7 @@ describe('PermissionController', function () {
 
     });
 
-    describe('User with Registered Role and granted to delete Permission 1', function () {
+    describe('Employee with Registered Role and granted to delete Permission 1', function () {
       describe("#delete()", function () {
         it('should be able to delete permission 1', function (done) {
           agent

@@ -8,76 +8,76 @@ var adminAuth = {
 var registeredAuth = {
   Authorization: 'Basic bmV3dXNlcjp1c2VyMTIzNA=='
 };
-var newUserAuth = {
+var newEmployeeAuth = {
   Authorization: 'Basic bmV3dXNlcjp1c2VyMTIzNA=='
 };
 
-describe('User Controller', function() {
+describe('Employee Controller', function() {
 
-  var adminUserId;
-  var newUserId;
+  var adminEmployeeId;
+  var newEmployeeId;
   var roleId;
   var inactiveRoleId;
 
-  describe('User with Admin Role', function() {
+  describe('Employee with Admin Role', function() {
 
     describe('#find()', function() {
 
-      it('should be able to read all users', function(done) {
+      it('should be able to read all employees', function(done) {
 
         request(sails.hooks.http.app)
-          .get('/user')
+          .get('/employee')
           .set('Authorization', adminAuth.Authorization)
           .expect(200)
           .end(function(err, res) {
 
-            var users = res.body;
+            var employees = res.body;
 
             assert.ifError(err);
-            assert.ifError(users.error);
-            assert.equal(users[0].username, 'admin');
-            adminUserId = users[0].id;
+            assert.ifError(employees.error);
+            assert.equal(employees[0].employeeName, 'admin');
+            adminEmployeeId = employees[0].id;
 
             done(err);
 
           });
       });
 
-      it('should be able to remove a user from a role', function(done) {
+      it('should be able to remove a employee from a role', function(done) {
         var ok = Role.find({
           name: 'registered'
         });
 
         ok.then(function(role) {
             request(sails.hooks.http.app)
-              .post('/user')
+              .post('/employee')
               .set('Authorization', adminAuth.Authorization)
               .send({
-                username: 'abouttoberemoveduser',
-                email: 'abouttoberemoveduser@example.com',
-                password: 'user1234'
+                employeeName: 'abouttoberemovedemployee',
+                email: 'abouttoberemovedemployee@example.com',
+                password: 'employee1234'
               })
               .expect(200)
               .end(function(err, res) {
 
                 assert.ifError(err);
-                var user = res.body;
+                var employee = res.body;
                 Role.findOne({
                     name: 'registered'
-                  }).populate('users', {
-                    id: user.id
+                  }).populate('employees', {
+                    id: employee.id
                   })
                   .then(function(role) {
-                    assert.equal(user.username, 'abouttoberemoveduser');
-                    assert(_.contains(_.pluck(role.users, 'id'), user.id));
+                    assert.equal(employee.employeeName, 'abouttoberemovedemployee');
+                    assert(_.contains(_.pluck(role.employees, 'id'), employee.id));
 
                     request(sails.hooks.http.app)
-                      .delete('/role/' + role.id + '/users/' + user.id)
+                      .delete('/role/' + role.id + '/employees/' + employee.id)
                       .set('Authorization', adminAuth.Authorization)
                       .expect(200)
                       .end(function(err, res) {
-                        // the user id should not be in the list anymore
-                        assert(!_.includes(_.pluck(res.users, 'id'), user.id));
+                        // the employee id should not be in the list anymore
+                        assert(!_.includes(_.pluck(res.employees, 'id'), employee.id));
                         done();
                       });
                   });
@@ -92,25 +92,25 @@ describe('User Controller', function() {
 
     describe('#create()', function() {
 
-      it('should be able to create a new user', function(done) {
+      it('should be able to create a new employee', function(done) {
 
         request(sails.hooks.http.app)
-          .post('/user')
+          .post('/employee')
           .set('Authorization', adminAuth.Authorization)
           .send({
-            username: 'newuser',
-            email: 'newuser@example.com',
-            password: 'user1234'
+            employeeName: 'newemployee',
+            email: 'newemployee@example.com',
+            password: 'employee1234'
           })
           .expect(200)
           .end(function(err, res) {
 
-            var user = res.body;
+            var employee = res.body;
 
             assert.ifError(err);
-            assert.ifError(user.error);
-            assert.equal(user.username, 'newuser');
-            newUserId = user.id;
+            assert.ifError(employee.error);
+            assert.equal(employee.employeeName, 'newemployee');
+            newEmployeeId = employee.id;
 
             done(err);
 
@@ -118,15 +118,15 @@ describe('User Controller', function() {
 
       });
 
-      it('should return an error if a user already exists', function(done) {
+      it('should return an error if a employee already exists', function(done) {
 
         request(sails.hooks.http.app)
-          .post('/user')
+          .post('/employee')
           .set('Authorization', adminAuth.Authorization)
           .send({
-            username: 'newuser',
-            email: 'newuser@example.com',
-            password: 'user1234'
+            employeeName: 'newemployee',
+            email: 'newemployee@example.com',
+            password: 'employee1234'
           })
           .expect(400)
           .end(function(err) {
@@ -135,14 +135,14 @@ describe('User Controller', function() {
 
       });
 
-      it('should be able to create a new role, and assign a new user to it', function(done) {
+      it('should be able to create a new role, and assign a new employee to it', function(done) {
 
         request(sails.hooks.http.app)
           .post('/role')
           .set('Authorization', adminAuth.Authorization)
           .send({
             name: 'testrole',
-            users: [newUserId]
+            employees: [newEmployeeId]
           })
           .expect(201)
           .end(function(err, res) {
@@ -168,7 +168,7 @@ describe('User Controller', function() {
                 model: roleModel.id,
                 action: 'update',
                 role: roleId,
-                createdBy: adminUserId,
+                createdBy: adminEmployeeId,
                 criteria: {
                   blacklist: ['id', 'stream'],
                   where: {
@@ -201,7 +201,7 @@ describe('User Controller', function() {
                 model: roleModel.id,
                 action: 'update',
                 role: roleId,
-                createdBy: adminUserId,
+                createdBy: adminEmployeeId,
                 criteria: {
                   blacklist: ['id']
                 },
@@ -221,7 +221,7 @@ describe('User Controller', function() {
           .set('Authorization', adminAuth.Authorization)
           .send({
             name: 'inactiveRole',
-            users: [newUserId],
+            employees: [newEmployeeId],
             active: false
           })
           .expect(201)
@@ -249,7 +249,7 @@ describe('User Controller', function() {
                 model: roleModel.id,
                 action: 'read',
                 role: roleId,
-                createdBy: adminUserId,
+                createdBy: adminEmployeeId,
                 criteria: {
                   where: {
                     active: true
@@ -281,7 +281,7 @@ describe('User Controller', function() {
                 model: permissionModel.id,
                 action: 'read',
                 role: roleId,
-                createdBy: adminUserId,
+                createdBy: adminEmployeeId,
                 criteria: {
                   where: {
                     id: {
@@ -302,27 +302,27 @@ describe('User Controller', function() {
 
   });
 
-  describe('User with Registered Role', function() {
+  describe('Employee with Registered Role', function() {
 
     describe('#create()', function() {
 
-      it('should not be able to create a new user', function(done) {
+      it('should not be able to create a new employee', function(done) {
 
         request(sails.hooks.http.app)
-          .post('/user')
+          .post('/employee')
           .set('Authorization', registeredAuth.Authorization)
           .send({
-            username: 'newuser1',
-            email: 'newuser1@example.com',
+            employeeName: 'newemployee1',
+            email: 'newemployee1@example.com',
             password: 'lalalal1234'
           })
           .expect(403)
           .end(function(err, res) {
 
-            var user = res.body;
+            var employee = res.body;
 
             assert.ifError(err);
-            assert(_.isString(user.error), JSON.stringify(user));
+            assert(_.isString(employee.error), JSON.stringify(employee));
 
             done(err);
 
@@ -337,18 +337,18 @@ describe('User Controller', function() {
       it('should be able to update themselves', function(done) {
 
         request(sails.hooks.http.app)
-          .put('/user/' + newUserId)
+          .put('/employee/' + newEmployeeId)
           .set('Authorization', registeredAuth.Authorization)
           .send({
-            email: 'newuserupdated@example.com'
+            email: 'newemployeeupdated@example.com'
           })
           .expect(200)
           .end(function(err, res) {
 
-            var user = res.body;
+            var employee = res.body;
 
             assert.ifError(err);
-            assert.equal(user.email, 'newuserupdated@example.com');
+            assert.equal(employee.email, 'newemployeeupdated@example.com');
 
             done(err);
 
@@ -360,7 +360,7 @@ describe('User Controller', function() {
         // it should be able to do this, because an earlier test set up the role and permission for it
         request(sails.hooks.http.app)
           .put('/role/' + roleId)
-          .set('Authorization', newUserAuth.Authorization)
+          .set('Authorization', newEmployeeAuth.Authorization)
           .send({
             name: 'updatedName'
           })
@@ -378,7 +378,7 @@ describe('User Controller', function() {
         // it should be able to do this, because an earlier test set up the role and permission for it
         request(sails.hooks.http.app)
           .put('/role/' + roleId)
-          .set('Authorization', newUserAuth.Authorization)
+          .set('Authorization', newEmployeeAuth.Authorization)
           .send({
             id: 99
           })
@@ -396,7 +396,7 @@ describe('User Controller', function() {
         // attribute is ok but where clause fails
         request(sails.hooks.http.app)
           .put('/role/' + inactiveRoleId)
-          .set('Authorization', newUserAuth.Authorization)
+          .set('Authorization', newEmployeeAuth.Authorization)
           .send({
             name: 'updatedInactiveName'
           })
@@ -415,7 +415,7 @@ describe('User Controller', function() {
 
         request(sails.hooks.http.app)
           .get('/role')
-          .set('Authorization', newUserAuth.Authorization)
+          .set('Authorization', newEmployeeAuth.Authorization)
           .send({
             name: 'updatedInactiveName'
           })
@@ -435,7 +435,7 @@ describe('User Controller', function() {
 
         request(sails.hooks.http.app)
           .get('/permission')
-          .set('Authorization', newUserAuth.Authorization)
+          .set('Authorization', newEmployeeAuth.Authorization)
           .send({
             name: 'updatedInactiveName'
           })
@@ -445,10 +445,10 @@ describe('User Controller', function() {
           });
       });
 
-      it('should not be able to update another user', function(done) {
+      it('should not be able to update another employee', function(done) {
 
         request(sails.hooks.http.app)
-          .put('/user/' + adminUserId)
+          .put('/employee/' + adminEmployeeId)
           .set('Authorization', registeredAuth.Authorization)
           .send({
             email: 'crapadminemail@example.com'
@@ -456,10 +456,10 @@ describe('User Controller', function() {
           .expect(403)
           .end(function(err, res) {
 
-            var user = res.body;
+            var employee = res.body;
 
             assert.ifError(err);
-            assert(_.isString(user.error), JSON.stringify(user));
+            assert(_.isString(employee.error), JSON.stringify(employee));
 
             done(err);
 
@@ -468,17 +468,17 @@ describe('User Controller', function() {
       });
 
 
-      it('should not be able to read another user', function(done) {
+      it('should not be able to read another employee', function(done) {
 
         request(sails.hooks.http.app)
-          .get('/user/' + adminUserId)
+          .get('/employee/' + adminEmployeeId)
           .set('Authorization', registeredAuth.Authorization)
           .expect(403)
           .end(function(err, res) {
-            var user = res.body;
+            var employee = res.body;
 
             assert.ifError(err);
-            assert(_.isString(user.error), JSON.stringify(user));
+            assert(_.isString(employee.error), JSON.stringify(employee));
 
             done(err);
 
@@ -486,17 +486,17 @@ describe('User Controller', function() {
 
       });
 
-      it('should not be able to read all users', function(done) {
+      it('should not be able to read all employees', function(done) {
 
         request(sails.hooks.http.app)
-          .get('/user/')
+          .get('/employee/')
           .set('Authorization', registeredAuth.Authorization)
           .expect(200)
           .end(function(err, res) {
-            var users = res.body;
+            var employees = res.body;
 
             assert.ifError(err);
-            assert(users.length == 1);
+            assert(employees.length == 1);
 
             done(err);
 

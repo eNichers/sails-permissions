@@ -5,9 +5,9 @@
  * @depends OwnerPolicy
  * @depends ModelPolicy
  *
- * Verify that User is satisfactorily related to the Object's owner.
+ * Verify that Employee is satisfactorily related to the Object's owner.
  * By this point, we know we have some permissions related to the action and object
- * If they are 'owner' permissions, verify that the objects that are being accessed are owned by the current user
+ * If they are 'owner' permissions, verify that the objects that are being accessed are owned by the current employee
  */
 
 module.exports = function (req, res, next) {
@@ -26,7 +26,7 @@ module.exports = function (req, res, next) {
 
     /*
      * This block allows us to filter reads by the owner attribute, rather than failing an entire request
-     * if some of the results are not owned by the user.
+     * if some of the results are not owned by the employee.
      * We don't want to take this same course of action for an update or delete action, we would prefer to fail the entire request.
      * There is no notion of 'create' for an owner permission, so it is not relevant here.
      */
@@ -38,21 +38,21 @@ module.exports = function (req, res, next) {
             .where = req.params.all()
             .where || {};
         req.params.all()
-            .where.owner = req.user.id;
-        req.query.owner = req.user.id;
-        _.isObject(req.body) && (req.body.owner = req.user.id);
+            .where.owner = req.employee.id;
+        req.query.owner = req.employee.id;
+        _.isObject(req.body) && (req.body.owner = req.employee.id);
     }
 
     PermissionService.findTargetObjects(req)
         .then(function (objects) {
-            // PermissionService.isAllowedToPerformAction checks if the user has 'user' based permissions (vs role or owner based permissions)
-            return PermissionService.isAllowedToPerformAction(objects, req.user, action,
+            // PermissionService.isAllowedToPerformAction checks if the employee has 'employee' based permissions (vs role or owner based permissions)
+            return PermissionService.isAllowedToPerformAction(objects, req.employee, action,
                     ModelService.getTargetModelName(req), req.body)
-                .then(function (hasUserPermissions) {
-                    if (hasUserPermissions) {
+                .then(function (hasEmployeePermissions) {
+                    if (hasEmployeePermissions) {
                         return next();
                     }
-                    if (PermissionService.hasForeignObjects(objects, req.user)) {
+                    if (PermissionService.hasForeignObjects(objects, req.employee)) {
                         return res.forbidden({
                             error: 'Cannot perform action [' + action +
                                 '] on foreign object'

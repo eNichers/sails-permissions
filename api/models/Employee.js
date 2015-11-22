@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var _super = require('sails-auth/api/models/User');
+var _super = require('sails-auth/api/models/Employee');
 var Promise = require('bluebird');
 
 _.merge(exports, _super);
@@ -7,28 +7,28 @@ _.merge(exports, {
     attributes: {
         roles: {
             collection: 'Role',
-            via: 'users',
+            via: 'employees',
             dominant: true
         },
         permissions: {
             collection: "Permission",
-            via: "user"
+            via: "employee"
         }
     },
 
     /**
-     * Attach default Role to a new User
+     * Attach default Role to a new Employee
      */
     afterCreate: [
-        function setOwner(user, next) {
-            sails.log.verbose('User.afterCreate.setOwner', user);
-            User
+        function setOwner(employee, next) {
+            sails.log.verbose('Employee.afterCreate.setOwner', employee);
+            Employee
                 .update({
-                    id: user.id
+                    id: employee.id
                 }, {
-                    owner: user.id
+                    owner: employee.id
                 })
-                .then(function (user) {
+                .then(function (employee) {
                     next();
                 })
                 .catch(function (e) {
@@ -36,19 +36,19 @@ _.merge(exports, {
                     next(e);
                 });
         },
-        function attachDefaultRole(user, next) {
-            // Promise.bind({ }, User.findOne(user.id)
+        function attachDefaultRole(employee, next) {
+            // Promise.bind({ }, Employee.findOne(employee.id)
             //   .populate('roles')
-            //   .then(function (user) {
-            //     this.user = user;
+            //   .then(function (employee) {
+            //     this.employee = employee;
             //     return Role.findOne({ name: 'registered' });
             //   })
             //   .then(function (role) {
-            //     this.user.roles.add(role.id);
-            //     return this.user.save();
+            //     this.employee.roles.add(role.id);
+            //     return this.employee.save();
             //   })
-            //   .then(function (updatedUser) {
-            //     sails.log.silly('role "registered" attached to user', this.user.username);
+            //   .then(function (updatedEmployee) {
+            //     sails.log.silly('role "registered" attached to employee', this.employee.employeeName);
             //     next();
             //   })
             //   .catch(function (e) {

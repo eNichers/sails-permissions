@@ -15,7 +15,7 @@ module.exports = function (req, res, next) {
             method: req.method,
             body: _.omit(req.body, 'password'),
             model: req.options.modelIdentity,
-            user: (req.user || {})
+            employee: (req.employee || {})
                 .id
         })
         .exec(_.identity);

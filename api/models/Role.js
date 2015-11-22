@@ -2,15 +2,15 @@
  * @module Role
  *
  * @description
- *   Roles endow Users with Permissions. Exposes Postgres-like API for
- *   resolving granted Permissions for a User.
+ *   Roles endow Employees with Permissions. Exposes Postgres-like API for
+ *   resolving granted Permissions for a Employee.
  *
  * @see <http://www.postgresql.org/docs/9.3/static/sql-grant.html>
  */
 module.exports = {
   autoCreatedBy: false,
 
-  description: 'Confers `Permission` to `User`',
+  description: 'Confers `Permission` to `Employee`',
 
   attributes: {
     name: {
@@ -19,8 +19,8 @@ module.exports = {
       notNull: true,
       unique: true
     },
-    users: {
-      collection: 'User',
+    employees: {
+      collection: 'Employee',
       via: 'roles'
     },
     active: {

@@ -5,13 +5,13 @@
  */
 module.exports = function OwnerPolicy(req, res, next) {
     //sails.log('OwnerPolicy()');
-    if (!req.user || !req.user.id) {
+    if (!req.employee || !req.employee.id) {
         req.logout();
-        return res.send(500, new Error('req.user is not set'));
+        return res.send(500, new Error('req.employee is not set'));
     }
 
     /*
-    sails.log.verbose('OwnerPolicy user', req.user);
+    sails.log.verbose('OwnerPolicy employee', req.employee);
     sails.log.verbose('OwnerPolicy method', req.method);
     sails.log.verbose('OwnerPolicy req.body', req.body);
     */
@@ -23,8 +23,8 @@ module.exports = function OwnerPolicy(req, res, next) {
 
     if ('POST' == req.method) {
         //req.body || (req.body = { });
-        req.body.createdBy = req.user.id;
-        req.body.owner = req.user.id;
+        req.body.createdBy = req.employee.id;
+        req.body.owner = req.employee.id;
     }
 
     //sails.log.verbose('OwnerPolicy req.model', req.model);

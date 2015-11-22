@@ -11,27 +11,27 @@ describe('Permission Service', function() {
 
   describe('#isForeignObject()', function() {
 
-    it('should return true if object is not owned by the requesting user', function(done) {
+    it('should return true if object is not owned by the requesting employee', function(done) {
 
-      var objectNotOwnedByUser = {
+      var objectNotOwnedByEmployee = {
         owner: 2
       };
-      var user = 1;
+      var employee = 1;
 
-      assert.equal(sails.services.permissionservice.isForeignObject(user)(objectNotOwnedByUser), true);
+      assert.equal(sails.services.permissionservice.isForeignObject(employee)(objectNotOwnedByEmployee), true);
 
       done();
 
     });
 
-    it('should return false if object is owned by the requesting user', function(done) {
+    it('should return false if object is owned by the requesting employee', function(done) {
 
-      var objectOwnedByUser = {
+      var objectOwnedByEmployee = {
         owner: 1
       };
-      var user = 1;
+      var employee = 1;
 
-      assert.equal(sails.services.permissionservice.isForeignObject(user)(objectOwnedByUser), false);
+      assert.equal(sails.services.permissionservice.isForeignObject(employee)(objectOwnedByEmployee), false);
 
       done();
     });
@@ -40,36 +40,36 @@ describe('Permission Service', function() {
 
   describe('#hasForeignObjects()', function() {
 
-    it('should return true if any object is not owned by the requesting user', function(done) {
+    it('should return true if any object is not owned by the requesting employee', function(done) {
 
-      var objectOwnedByUser = {
+      var objectOwnedByEmployee = {
         owner: 1
       };
-      var objectNotOwnedByUser = {
+      var objectNotOwnedByEmployee = {
         owner: 2
       };
-      var user = {
+      var employee = {
         id: 1
       };
 
-      assert.equal(sails.services.permissionservice.hasForeignObjects([objectNotOwnedByUser, objectOwnedByUser], user), true);
+      assert.equal(sails.services.permissionservice.hasForeignObjects([objectNotOwnedByEmployee, objectOwnedByEmployee], employee), true);
 
       done();
     });
 
-    it('should return false if all objects are owned by the requesting user', function(done) {
+    it('should return false if all objects are owned by the requesting employee', function(done) {
 
-      var objectOwnedByUser = {
+      var objectOwnedByEmployee = {
         owner: 1
       };
-      var objectOwnedByUser2 = {
+      var objectOwnedByEmployee2 = {
         owner: 1
       };
-      var user = {
+      var employee = {
         id: 1
       };
 
-      assert.equal(sails.services.permissionservice.hasForeignObjects([objectOwnedByUser2, objectOwnedByUser], user), false);
+      assert.equal(sails.services.permissionservice.hasForeignObjects([objectOwnedByEmployee2, objectOwnedByEmployee], employee), false);
       done();
 
     });
@@ -368,7 +368,7 @@ describe('Permission Service', function() {
               action: 'delete',
               relation: 'role',
             }],
-            users: ['newuser']
+            employees: ['newemployee']
           };
           return sails.services.permissionservice.createRole(newRole);
         })
@@ -448,7 +448,7 @@ describe('Permission Service', function() {
     });
 
 
-    it('should grant a permission directly to a user', function(done) {
+    it('should grant a permission directly to a employee', function(done) {
       var permissionModelId;
       // find any existing permission for this action, and delete it
       Model.findOne({
@@ -473,7 +473,7 @@ describe('Permission Service', function() {
           assert.equal(permission.length, 0);
           // create a new permission
           var newPermissions = [{
-            user: 'admin',
+            employee: 'admin',
             model: 'Permission',
             action: 'create',
             relation: 'role',
@@ -484,7 +484,7 @@ describe('Permission Service', function() {
               blacklist: ['y']
             }
           }, {
-            user: 'admin',
+            employee: 'admin',
             model: 'Role',
             action: 'update',
             relation: 'role',
@@ -527,7 +527,7 @@ describe('Permission Service', function() {
         .then(function(permission) {
           assert.equal(permission.length, 1);
           return sails.services.permissionservice.revoke({
-            user: 'admin',
+            employee: 'admin',
             model: 'Permission',
             relation: 'role',
             action: 'create'
@@ -546,11 +546,11 @@ describe('Permission Service', function() {
         .done(done, done);
     });
 
-    it('should not revoke a permission if no user or role is supplied', function(done) {
+    it('should not revoke a permission if no employee or role is supplied', function(done) {
 
 
       var newPermissions = [{
-        user: 'admin',
+        employee: 'admin',
         model: 'Permission',
         action: 'create',
         relation: 'role',
@@ -561,7 +561,7 @@ describe('Permission Service', function() {
           blacklist: ['y']
         }
       }, {
-        user: 'admin',
+        employee: 'admin',
         model: 'Role',
         action: 'update',
         relation: 'role',
@@ -595,7 +595,7 @@ describe('Permission Service', function() {
               });
             })
             .catch(function(err) {
-              assert.equal(err.message, 'You must provide either a user or role to revoke the permission from');
+              assert.equal(err.message, 'You must provide either a employee or role to revoke the permission from');
             })
             .then(function() {
               return Permission.find({
@@ -611,24 +611,24 @@ describe('Permission Service', function() {
         });
     });
 
-    it('should remove users from a role', function(done) {
-      var user;
-      var ok = User.create({
-        username: 'test'
+    it('should remove employees from a role', function(done) {
+      var employee;
+      var ok = Employee.create({
+        employeeName: 'test'
       });
 
       ok = ok.then(function(usr) {
-        user = usr;
-        return PermissionService.addUsersToRole('test', 'admin');
+        employee = usr;
+        return PermissionService.addEmployeesToRole('test', 'admin');
       });
 
       ok = ok.then(function (role) {
-        assert(_.contains(_.pluck(role.users, 'id'), user.id));
-        return PermissionService.removeUsersFromRole('test', 'admin');
+        assert(_.contains(_.pluck(role.employees, 'id'), employee.id));
+        return PermissionService.removeEmployeesFromRole('test', 'admin');
       });
 
       ok = ok.then(function (role) {
-        assert(!_.contains(_.pluck(role.users, 'id'), user.id));
+        assert(!_.contains(_.pluck(role.employees, 'id'), employee.id));
       })
       .done(done, done);
 

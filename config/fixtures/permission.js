@@ -25,13 +25,13 @@ var Promise = require('bluebird');
 //     registered: [
 //         'Role',
 //         'Permission',
-//         'User',
+//         'Employee',
 //         'Passport'
 //     ],
 //     public: [
 //         'Role',
 //         'Permission',
-//         'User',
+//         'Employee',
 //         'Model',
 //         'Passport'
 //     ]
@@ -39,7 +39,7 @@ var Promise = require('bluebird');
 
 
 
-// TODO let users override this in the actual model definition
+// TODO let employees override this in the actual model definition
 
 /**
  * Create default Role permissions
@@ -126,7 +126,7 @@ function grantAdminPermissions(roles, models, admin) {
 //         role: registeredRole.id
 //     }, {
 //         model: _.find(models, {
-//                 name: 'User'
+//                 name: 'Employee'
 //             })
 //             .id,
 //         action: 'update',
@@ -134,7 +134,7 @@ function grantAdminPermissions(roles, models, admin) {
 //         relation: 'owner'
 //     }, {
 //         model: _.find(models, {
-//                 name: 'User'
+//                 name: 'Employee'
 //             })
 //             .id,
 //         action: 'read',

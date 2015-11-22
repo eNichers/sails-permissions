@@ -17,7 +17,7 @@ module.exports = function (sails) {
 
         defaults: {
             adminEmail: process.env.ADMIN_EMAIL || 'admin@example.com',
-            adminUsername: process.env.ADMIN_USERNAME || 'admin',
+            adminEmployeename: process.env.ADMIN_USERNAME || 'admin',
             adminPassword: process.env.ADMIN_PASSWORD || 'admin1234',
 
             afterEvent: [],
@@ -25,7 +25,7 @@ module.exports = function (sails) {
 
 
             allowUnknownModelDefinitions: false,
-            anonymousUsername: process.env.ANONYMOUS_USERNAME || 'anonymous',
+            anonymousEmployeename: process.env.ANONYMOUS_USERNAME || 'anonymous',
             anonymousPassword: process.env.ANONYMOUS_PASSWORD || '12345678',
             anonymousEmail: process.env.ANONYMOUS_EMAIL || 'anonymous@example.com',
         },
@@ -82,8 +82,8 @@ module.exports = function (sails) {
 };
 
 /**
- * Install the application. Sets up default Roles, Users, Models, and
- * Permissions, and creates an admin user.
+ * Install the application. Sets up default Roles, Employees, Models, and
+ * Permissions, and creates an admin employee.
  */
 function initializeFixtures(sails) {
 
@@ -100,23 +100,23 @@ function initializeFixtures(sails) {
         })
         .then(function (roles) {
             this.roles = roles;
-            var userModel = _.find(this.models, {
-                name: 'user'
+            var employeeModel = _.find(this.models, {
+                name: 'employee'
             });
 
-            return require('../../config/fixtures/user')
-                .create(this.roles, userModel);
+            return require('../../config/fixtures/employee')
+                .create(this.roles, employeeModel);
         })
         .then(function () {
-            return User.findOne({
-                username: sails.config.permissions.adminUsername
+            return Employee.findOne({
+                employeeName: sails.config.permissions.adminEmployeename
             });
         })
-        .then(function (user) {
-            sails.log.verbose('sails-permissions: created admin user:', user);
-            user.createdBy = user.id;
-            user.owner = user.id;
-            return user.save();
+        .then(function (employee) {
+            sails.log.verbose('sails-permissions: created admin employee:', employee);
+            employee.createdBy = employee.id;
+            employee.owner = employee.id;
+            return employee.save();
         })
         .then(function (admin) {
 
@@ -137,11 +137,11 @@ function installModelOwnership(sails) {
 
         _.defaults(model.attributes, {
             createdBy: {
-                model: 'User',
+                model: 'Employee',
                 index: true
             },
             owner: {
-                model: 'User',
+                model: 'Employee',
                 index: true
             }
         });

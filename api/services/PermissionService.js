@@ -12,25 +12,25 @@ var wlFilter = require('waterline-criteria');
 var anonymousPermessionsCache = null;
 
 module.exports = {
-     findUserModelPermissions: function (user,callback) {
-        var isAnonymous = user.username == sails.config.permissions.anonymousUsername; 
+     findEmployeeModelPermissions: function (employee,callback) {
+        var isAnonymous = employee.employeeName == sails.config.permissions.anonymousEmployeename; 
         if(isAnonymous && anonymousPermessionsCache){
             callback(anonymousPermessionsCache);
             return;
         }
 
-        return User.findOne({
-            id: user.id
+        return Employee.findOne({
+            id: employee.id
         })
         .populate('roles')
-        .then(function (user) {
+        .then(function (employee) {
             return Model.find({}, {
                     action: 1,
                     attributes: 0
 
                 })
                 .populate('permissions', {
-                    role: user.roles[0].id
+                    role: employee.roles[0].id
                 }).then(function(modelPermissions){
                     if(isAnonymous){
                         anonymousPermessionsCache = modelPermissions;
@@ -48,17 +48,17 @@ module.exports = {
 
     /**
      * Given an object, or a list of objects, return true if the list contains
-     * objects not owned by the specified user.
+     * objects not owned by the specified employee.
      */
-    hasForeignObjects: function (objects, user) {
+    hasForeignObjects: function (objects, employee) {
         if (!_.isArray(objects)) {
-            return PermissionService.isForeignObject(user.id)(objects);
+            return PermissionService.isForeignObject(employee.id)(objects);
         }
-        return _.any(objects, PermissionService.isForeignObject(user.id));
+        return _.any(objects, PermissionService.isForeignObject(employee.id));
     },
 
     /**
-     * Return whether the specified object is NOT owned by the specified user.
+     * Return whether the specified object is NOT owned by the specified employee.
      */
     isForeignObject: function (owner) {
         return function (object) {
@@ -105,25 +105,25 @@ module.exports = {
     },
 
     /**
-     * Query Permissions that grant privileges to a role/user on an action for a
+     * Query Permissions that grant privileges to a role/employee on an action for a
      * model.
      *
      * @param options.method
      * @param options.model
-     * @param options.user
+     * @param options.employee
      */
     findModelPermissions: function (options) {
         var action = options.action;
-        return User.findOne(options.user.id)
+        return Employee.findOne(options.employee.id)
             .populate('roles')
-            .then(function (user) {
+            .then(function (employee) {
                 return Permission.find({
                         model: options.model.id,
                         action: action,
                         or: [{
-                            user: user.id
+                            employee: employee.id
                         }, {
-                            role: _.pluck(user.roles, 'id')
+                            role: _.pluck(employee.roles, 'id')
                         }]
                     })
                     .populate('criteria');
@@ -137,13 +137,13 @@ module.exports = {
      * @param {Array of objects} objects - The result of the query, or if the action is create,
      * the body of the object to be created
      * @param {Array of Permission objects} permissions - An array of permission objects
-     * that are relevant to this particular user query
+     * that are relevant to this particular employee query
      * @param {Object} attributes - The body of the request, in an update or create request.
      * The keys of this object are checked against the permissions blacklist
      * @returns boolean - True if there is at least one granted permission that allows the requested action,
      * otherwise false
      */
-    hasPassingCriteria: function (objects, permissions, attributes, user) {
+    hasPassingCriteria: function (objects, permissions, attributes, employee) {
         // return success if there are no permissions or objects
         if (_.isEmpty(permissions) || _.isEmpty(objects)) return true;
 
@@ -190,9 +190,9 @@ module.exports = {
                     .results;
                 var hasUnpermittedAttributes = PermissionService.hasUnpermittedAttributes(
                     attributes, criteria.blacklist);
-                var hasOwnership = true; // edge case for scenario where a user has some permissions that are owner based and some that are role based
+                var hasOwnership = true; // edge case for scenario where a employee has some permissions that are owner based and some that are role based
                 if (criteria.owner) {
-                    hasOwnership = !PermissionService.isForeignObject(user)
+                    hasOwnership = !PermissionService.isForeignObject(employee)
                         (obj);
                 }
                 return match.length === 1 && !hasUnpermittedAttributes &&
@@ -223,7 +223,7 @@ module.exports = {
      */
     getErrorMessage: function (options) {
         return [
-            'User', options.user.email, 'is not permitted to', options.method, options.model
+            'Employee', options.employee.email, 'is not permitted to', options.method, options.model
             .globalId
         ].join(' ');
     },
@@ -245,7 +245,7 @@ module.exports = {
      * @param options.permissions.criteria - optional criteria object
      * @param options.permissions.criteria.where - optional waterline query syntax object for specifying permissions
      * @param options.permissions.criteria.blacklist {string array} - optional attribute blacklist
-     * @param options.users {array of user names} - optional array of user ids that have this role
+     * @param options.employees {array of employee names} - optional array of employee ids that have this role
      */
     createRole: function (options) {
 
@@ -270,19 +270,19 @@ module.exports = {
             });
         });
 
-        // look up user ids based on usernames, and replace the names with ids
+        // look up employee ids based on employeeNames, and replace the names with ids
         ok = ok.then(function (permissions) {
-            if (options.users) {
-                return User.find({
-                        username: options.users
+            if (options.employees) {
+                return Employee.find({
+                        employeeName: options.employees
                     })
-                    .then(function (users) {
-                        options.users = users;
+                    .then(function (employees) {
+                        options.employees = employees;
                     });
             }
         });
 
-        ok = ok.then(function (users) {
+        ok = ok.then(function (employees) {
             return Role.create(options);
         });
 
@@ -293,8 +293,8 @@ module.exports = {
      *
      * @param options {permission object, or array of permissions objects}
      * @param options.role {string} - the role name that the permission is associated with,
-     *                                either this or user should be supplied, but not both
-     * @param options.user {string} - the user than that the permission is associated with,
+     *                                either this or employee should be supplied, but not both
+     * @param options.employee {string} - the employee than that the permission is associated with,
      *                                either this or role should be supplied, but not both
      * @param options.model {string} - the model name that the permission is associated with
      * @param options.action {string} - the http action that the permission allows
@@ -312,23 +312,23 @@ module.exports = {
             var findRole = permission.role ? Role.findOne({
                 name: permission.role
             }) : null;
-            var findUser = permission.user ? User.findOne({
-                username: permission.user
+            var findEmployee = permission.employee ? Employee.findOne({
+                employeeName: permission.employee
             }) : null;
-            return Promise.all([findRole, findUser, Model.findOne({
+            return Promise.all([findRole, findEmployee, Model.findOne({
                     name: permission.model
                 })])
-                .spread(function (role, user, model) {
+                .spread(function (role, employee, model) {
                     permission.model = model.id;
                     if (role && role.id) {
                         permission.role = role.id;
                     }
-                    else if (user && user.id) {
-                        permission.user = user.id;
+                    else if (employee && employee.id) {
+                        permission.employee = employee.id;
                     }
                     else {
                         return Promise.reject(new Error(
-                            'no role or user specified'));
+                            'no role or employee specified'));
                     }
                 });
         });
@@ -341,63 +341,63 @@ module.exports = {
     },
 
     /**
-     * add one or more users to a particular role
+     * add one or more employees to a particular role
      * TODO should this work with multiple roles?
-     * @param usernames {string or string array} - list of names of users
-     * @param rolename {string} - the name of the role that the users should be added to
+     * @param employeeNames {string or string array} - list of names of employees
+     * @param rolename {string} - the name of the role that the employees should be added to
      */
-    addUsersToRole: function (usernames, rolename) {
-        if (_.isEmpty(usernames)) {
-            return Promise.reject(new Error('One or more usernames must be provided'));
+    addEmployeesToRole: function (employeeNames, rolename) {
+        if (_.isEmpty(employeeNames)) {
+            return Promise.reject(new Error('One or more employeeNames must be provided'));
         }
 
-        if (!_.isArray(usernames)) {
-            usernames = [usernames];
+        if (!_.isArray(employeeNames)) {
+            employeeNames = [employeeNames];
         }
 
         return Role.findOne({
                 name: rolename
             })
-            .populate('users')
+            .populate('employees')
             .then(function (role) {
-                return User.find({
-                        username: usernames
+                return Employee.find({
+                        employeeName: employeeNames
                     })
-                    .then(function (users) {
-                        role.users.add(_.pluck(users, 'id'));
+                    .then(function (employees) {
+                        role.employees.add(_.pluck(employees, 'id'));
                         return role.save();
                     });
             });
     },
 
     /**
-     * remove one or more users from a particular role
+     * remove one or more employees from a particular role
      * TODO should this work with multiple roles
-     * @params usernames {string or string array} - name or list of names of users
-     * @params rolename {string} - the name of the role that the users should be removed from
+     * @params employeeNames {string or string array} - name or list of names of employees
+     * @params rolename {string} - the name of the role that the employees should be removed from
      */
-    removeUsersFromRole: function (usernames, rolename) {
-        if (_.isEmpty(usernames)) {
-            return Promise.reject(new Error('One or more usernames must be provided'));
+    removeEmployeesFromRole: function (employeeNames, rolename) {
+        if (_.isEmpty(employeeNames)) {
+            return Promise.reject(new Error('One or more employeeNames must be provided'));
         }
 
-        if (!_.isArray(usernames)) {
-            usernames = [usernames];
+        if (!_.isArray(employeeNames)) {
+            employeeNames = [employeeNames];
         }
 
         return Role.findOne({
                 name: rolename
             })
-            .populate('users')
+            .populate('employees')
             .then(function (role) {
-                return User.find({
-                        username: usernames
+                return Employee.find({
+                        employeeName: employeeNames
                     }, {
                         select: ['id']
                     })
-                    .then(function (users) {
-                        users.map(function (users) {
-                            role.users.remove(user.id);
+                    .then(function (employees) {
+                        employees.map(function (employees) {
+                            role.employees.remove(employee.id);
                         });
                         return role.save();
                     });
@@ -407,8 +407,8 @@ module.exports = {
     /**
      * revoke permission from role
      * @param options
-     * @param options.role {string} - the name of the role related to the permission.  This, or options.user should be set, but not both.
-     * @param options.user {string} - the name of the user related to the permission.  This, or options.role should be set, but not both.
+     * @param options.role {string} - the name of the role related to the permission.  This, or options.employee should be set, but not both.
+     * @param options.employee {string} - the name of the employee related to the permission.  This, or options.role should be set, but not both.
      * @param options.model {string} - the name of the model for the permission
      * @param options.action {string} - the name of the action for the permission
      * @param options.relation {string} - the type of the relation (owner or role)
@@ -417,14 +417,14 @@ module.exports = {
         var findRole = options.role ? Role.findOne({
             name: options.role
         }) : null;
-        var findUser = options.user ? User.findOne({
-            username: options.user
+        var findEmployee = options.employee ? Employee.findOne({
+            employeeName: options.employee
         }) : null;
-        var ok = Promise.all([findRole, findUser, Model.findOne({
+        var ok = Promise.all([findRole, findEmployee, Model.findOne({
             name: options.model
         })]);
 
-        ok = ok.spread(function (role, user, model) {
+        ok = ok.spread(function (role, employee, model) {
 
             var query = {
                 model: model.id,
@@ -435,12 +435,12 @@ module.exports = {
             if (role && role.id) {
                 query.role = role.id;
             }
-            else if (user && user.id) {
-                query.user = user.id;
+            else if (employee && employee.id) {
+                query.employee = employee.id;
             }
             else {
                 return Promise.reject(new Error(
-                    'You must provide either a user or role to revoke the permission from'
+                    'You must provide either a employee or role to revoke the permission from'
                 ));
             }
 
@@ -451,20 +451,20 @@ module.exports = {
     },
 
     /**
-     * Check if the user (out of role) is granted to perform action on given objects
+     * Check if the employee (out of role) is granted to perform action on given objects
      * @param objects
-     * @param user
+     * @param employee
      * @param action
      * @param model
      * @param body
      * @returns {*}
      */
-    isAllowedToPerformAction: function (objects, user, action, model, body) {
+    isAllowedToPerformAction: function (objects, employee, action, model, body) {
         if (!_.isArray(objects)) {
-            return PermissionService.isAllowedToPerformSingle(user.id, action, model, body)
+            return PermissionService.isAllowedToPerformSingle(employee.id, action, model, body)
                 (objects);
         }
-        return new Promise.map(objects, PermissionService.isAllowedToPerformSingle(user.id,
+        return new Promise.map(objects, PermissionService.isAllowedToPerformSingle(employee.id,
                 action, model, body))
             .then(function (allowedArray) {
                 return allowedArray.every(function (allowed) {
@@ -474,14 +474,14 @@ module.exports = {
     },
 
     /**
-     * Resolve if the user have the permission to perform this action
-     * @param user
+     * Resolve if the employee have the permission to perform this action
+     * @param employee
      * @param action
      * @param model
      * @param body
      * @returns {Function}
      */
-    isAllowedToPerformSingle: function (user, action, model, body) {
+    isAllowedToPerformSingle: function (employee, action, model, body) {
         return function (obj) {
             return new Promise(function (resolve, reject) {
                 Model.findOne({
@@ -491,8 +491,8 @@ module.exports = {
                         return Permission.find({
                                 model: model.id,
                                 action: action,
-                                relation: 'user',
-                                user: user
+                                relation: 'employee',
+                                employee: employee
                             })
                             .populate('criteria');
                     })
