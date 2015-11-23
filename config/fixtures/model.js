@@ -13,18 +13,15 @@ exports.createModels = function () {
     }
     var models = _.compact(_.map(sails.controllers, function (controller, name) {
         if(prefix && prefix.length > 0){
-            if(!startsWith(name,prefix+'/')){
+            if(!startsWith(name,prefix)){
                 return false;
             }
         }
         var conf = controller._config,
-            modelName = conf && conf.model && conf.model.name,
-            model = sails.models[modelName || name];
-        //model && model.globalId && model.identity && 
+            modelName = conf && conf.model && conf.model.name,                   
         return {
             name: name,
-            identity: controller.identity,
-            //attributes: _.omit(model.attributes, _.functions(model.attributes))
+            identity: controller.identity,            
         };
     }));
 

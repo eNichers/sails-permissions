@@ -104,7 +104,7 @@ function initializeFixtures(sails) {
         .then(function (roles) {
             this.roles = roles;
             var employeeModel = _.find(this.models, {
-                name: 'employee'
+                name: sails.config.permissions.controllersRoot+'employee'
             });
 
             return require('../../config/fixtures/employee')
