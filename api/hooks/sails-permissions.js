@@ -18,15 +18,13 @@ module.exports = function (sails) {
         defaults: {
 
             controllersRoot: "",
-
+            anonymousDisabled:false,
             adminEmail: process.env.ADMIN_EMAIL || 'admin@example.com',
             adminEmployeeName: process.env.ADMIN_EMPLOYEENAME || 'admin',
             adminPassword: process.env.ADMIN_PASSWORD || 'admin1234',
 
             afterEvent: [],
-
-
-
+            
             allowUnknownModelDefinitions: false,
             anonymousEmployeename: process.env.ANONYMOUS_USERNAME || 'anonymous',
             anonymousPassword: process.env.ANONYMOUS_PASSWORD || '12345678',
