@@ -17,11 +17,11 @@ exports.createModels = function () {
                 return false;
             }
         }
-        var conf = controller._config,
-            modelName = conf && conf.model && conf.model.name,                   
+        var conf = controller._config;
+
         return {
             name: name,
-            identity: controller.identity,            
+            identity: controller.identity            
         };
     }));
 
