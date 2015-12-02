@@ -5,8 +5,10 @@ var actionUtil = require('sails/lib/hooks/blueprints/actionUtil');
  */
 module.exports = function ModelPolicy(req, res, next) {
     var modelCache = sails.hooks['sails-permissions']._modelCache;
+    req.options.model = req.options.controller.replace(/.+\//g,'');
     req.options.modelIdentity = actionUtil.parseModel(req)
         .identity;
+    req.options.controllerIdentity = sails.controllers[req.options.controller].identity;
 
     if (_.isEmpty(req.options.modelIdentity)) {
         return next();
@@ -23,7 +25,7 @@ module.exports = function ModelPolicy(req, res, next) {
 
     // if the model is not found in the cache for some reason, get it from the database
     Model.findOne({
-            identity: req.options.modelIdentity
+            identity: req.options.controllerIdentity
         })
         .then(function (model) {
             if (!_.isObject(model)) {
