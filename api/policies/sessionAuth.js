@@ -51,6 +51,8 @@ module.exports = function (req, res, next) {
 
     }
     else {
+        req.employee = req.user;
+        delete req.user; 
         callback(req.employee);
     }
 
