@@ -76,11 +76,15 @@ function grantAdminPermissions(roles, models, admin) {
     });
 
 
-
+    var exceptedActions = ['identity', 'globalId', 'sails'];
+    var extraExceptedActions = sails.config.permissions.exceptedActions;
+    if(extraExceptedActions && extraExceptedActions.length > 0){
+        exceptedActions = exceptedActions.concat(extraExceptedActions);
+    }
     var permissions = _.flatten(_.map(controllers, function (controller) {
 
         var actions = _.remove(Object.keys(controller), function (action) {
-            return !_.contains(['identity', 'globalId', 'sails'], action);
+            return !_.contains(exceptedActions, action);
         });
 
         var model = _.find(models, {
@@ -148,3 +152,4 @@ function grantAdminPermissions(roles, models, admin) {
 //         })
 //     );
 // }
+

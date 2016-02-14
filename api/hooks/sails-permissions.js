@@ -18,6 +18,7 @@ module.exports = function (sails) {
         defaults: {
 
             controllersRoot: "",
+            exceptedActions: [],
             anonymousDisabled:false,
             adminEmail: process.env.ADMIN_EMAIL || 'admin@example.com',
             adminEmployeeName: process.env.ADMIN_EMPLOYEENAME || 'admin',
@@ -162,3 +163,4 @@ function validatePolicyConfig(sails) {
 function validateDependencies(sails) {
     return !!sails.hooks['sails-auth'];
 }
+
