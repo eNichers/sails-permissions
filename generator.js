@@ -6,7 +6,7 @@ module.exports = require('sails-generate-entities')({
     'api/models/Permission.js',
     'api/models/Criteria.js',
     'api/models/Role.js',
-    'api/models/Employee.js',
+    'api/models/Admin.js',
     'api/models/RequestLog.js',
     'api/models/SecurityLog.js',
                                             
@@ -21,7 +21,7 @@ module.exports = require('sails-generate-entities')({
     'config/passport.js',
 
     'api/controllers/AuthController.js',
-    'api/controllers/EmployeeController.js',
+    'api/controllers/AdminController.js',
     'api/models/Passport.js'
   ],
   classes: [

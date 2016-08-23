@@ -6,10 +6,10 @@ var Promise = require('bluebird');
  *
  * In order to proceed to the controller, the following verifications
  * must pass:
- * 1. Employee is logged in (handled previously by sails-auth sessionAuth policy)
- * 2. Employee has Permission to perform action on Model
- * 3. Employee has Permission to perform action on Attribute (if applicable) [TODO]
- * 4. Employee is satisfactorily related to the Object's owner (if applicable)
+ * 1. Admin is logged in (handled previously by sails-auth sessionAuth policy)
+ * 2. Admin has Permission to perform action on Model
+ * 3. Admin has Permission to perform action on Attribute (if applicable) [TODO]
+ * 4. Admin is satisfactorily related to the Object's owner (if applicable)
  *
  * This policy verifies #1-2 here, before any controller is invoked. However
  * it is not generally possible to determine ownership relationship until after
@@ -23,7 +23,7 @@ module.exports = function (req, res, next) {
     var options = {
         model: req.model,
         method: req.method,
-        employee: req.employee,
+        admin: req.admin,
         action: req.options.action
     };
 
@@ -35,7 +35,7 @@ module.exports = function (req, res, next) {
         .findModelPermissions(options)
         .then(function (permissions) {
             sails.log.silly('PermissionPolicy:', permissions.length, 'permissions grant',
-                req.method, 'on', req.model.name, 'for', req.employee.employeeName);
+                req.method, 'on', req.model.name, 'for', req.admin.adminName);
 
             if (!permissions || permissions.length === 0) {
                 return res.forbidden({
@@ -61,7 +61,7 @@ function bindResponsePolicy(req, res) {
 function responsePolicy(_data, options) {
     var req = this.req;
     var res = this.res;
-    var employee = req.owner;
+    var admin = req.owner;
     var method = PermissionService.getMethod(req);
 
     var data = _.isArray(_data) ? _data : [_data];
@@ -72,7 +72,7 @@ function responsePolicy(_data, options) {
     // TODO search populated associations
     Promise.bind(this)
         .map(data, function (object) {
-            return employee.getOwnershipRelation(data);
+            return admin.getOwnershipRelation(data);
         })
         .then(function (results) {
             //sails.log.verbose('results', results);

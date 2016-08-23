@@ -2,7 +2,7 @@
  * CriteriaPolicy
  * @depends PermissionPolicy
  *
- * Verify that the Employee fulfills permission 'where' conditions and attribute blacklist restrictions
+ * Verify that the Admin fulfills permission 'where' conditions and attribute blacklist restrictions
  */
 var wlFilter = require('waterline-criteria');
 
@@ -61,7 +61,7 @@ module.exports = function (req, res, next) {
                 body = undefined;
             }
 
-            if (!PermissionService.hasPassingCriteria(objects, permissions, body, req.employee.id)) {
+            if (!PermissionService.hasPassingCriteria(objects, permissions, body, req.admin.id)) {
                 return res.forbidden({
                     error: 'Can\'t ' + action +
                         ', because of failing where clause or attribute permissions'
@@ -86,7 +86,7 @@ function responsePolicy(criteria, _data, options) {
     sails.log.info('responsePolicy');
     var req = this.req;
     var res = this.res;
-    var employee = req.owner;
+    var admin = req.owner;
     var method = PermissionService.getMethod(req);
     var isResponseArray = _.isArray(_data);
 

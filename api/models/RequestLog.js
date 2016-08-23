@@ -28,8 +28,8 @@ module.exports = {
     body: {
       type: 'json'
     },
-    employee: {
-      model: 'Employee'
+    admin: {
+      model: 'Admin'
     },
     model: {
       type: 'string'

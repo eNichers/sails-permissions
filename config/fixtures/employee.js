@@ -1,10 +1,10 @@
 /**
- * Create admin employee.
+ * Create admin admin.
  * @param adminRole - the admin role which grants all permissions
  */
-exports.create = function (roles, employeeModel) {
-    if (_.isEmpty(sails.config.permissions.adminEmployeeName)) {
-        throw new Error('sails.config.permissions.adminEmployeeName is not set');
+exports.create = function (roles, adminModel) {
+    if (_.isEmpty(sails.config.permissions.adminName)) {
+        throw new Error('sails.config.permissions.adminName is not set');
     }
     if (_.isEmpty(sails.config.permissions.adminPassword)) {
         throw new Error('sails.config.permissions.adminPassword is not set');
@@ -14,15 +14,15 @@ exports.create = function (roles, employeeModel) {
     }
 
 
-    return Employee.findOne({
-            employeeName: sails.config.permissions.adminEmployeeName
+    return Admin.findOne({
+            adminName: sails.config.permissions.adminName
         })
-        .then(function (employee) {
-            if (employee) return employee;
+        .then(function (admin) {
+            if (admin) return admin;
 
-            sails.log.info('sails-permissions: admin employee does not exist; creating...');
-            return Employee.register({
-                employeeName: sails.config.permissions.adminEmployeeName,
+            sails.log.info('sails-permissions: admin admin does not exist; creating...');
+            return Admin.register({
+                adminName: sails.config.permissions.adminName,
                 password: sails.config.permissions.adminPassword,
                 email: sails.config.permissions.adminEmail,
                 roles: [_.find(roles, {
@@ -32,7 +32,7 @@ exports.create = function (roles, employeeModel) {
                 ],
                 createdBy: 1,
                 owner: 1,
-                model: employeeModel.id
+                model: adminModel.id
             });
         });
 };

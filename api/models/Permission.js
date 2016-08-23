@@ -9,7 +9,7 @@ module.exports = {
 
   description: [
     'Defines a particular `action` that a `Role` can perform on a `Model`.',
-    'A `Employee` can perform an `action` on a `Model` by having a `Role` which',
+    'A `Admin` can perform an `action` on a `Model` by having a `Role` which',
     'grants the necessary `Permission`.'
   ].join(' '),
 
@@ -45,7 +45,7 @@ module.exports = {
       enum: [
         'role',
         'owner',
-        'employee'
+        'admin'
       ],
       defaultsTo: 'role',
       index: true
@@ -62,11 +62,11 @@ module.exports = {
     },
 
     /**
-     * The Employee to which this Permission grants create, read, update, and/or
+     * The Admin to which this Permission grants create, read, update, and/or
      * delete privileges.
      */
-    employee: {
-      model: 'Employee'
+    admin: {
+      model: 'Admin'
       // Validate manually
     },
 
@@ -91,8 +91,8 @@ module.exports = {
         next(new Error('Creating a Permission with an attribute blacklist is not allowed when action=delete'));
       }
 
-      if (permission.relation == 'employee' && permission.employee === "") {
-        next(new Error('A Permission with relation employee MUST have the employee attribute set'));
+      if (permission.relation == 'admin' && permission.admin === "") {
+        next(new Error('A Permission with relation admin MUST have the admin attribute set'));
       }
 
       if (permission.relation == 'role' && permission.role === "") {

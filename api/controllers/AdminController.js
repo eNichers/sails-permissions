@@ -1,6 +1,6 @@
 
 var _ = require('lodash');
-var _super = require('sails-auth/api/controllers/EmployeeController');
+var _super = require('sails-auth/api/controllers/AdminController');
 
 _.merge(exports, _super);
 _.merge(exports, {

@@ -51,7 +51,7 @@
     "fnv-plus": "^1.2.10",
     "lodash": "^3.10.0",
     "pluralize": "^1.0.1",
-    "sails-auth": "git+https://github.com/eNichers/sails-auth#nozol",
+    "sails-auth": "git+https://github.com/eNichers/sails-auth#admin",
     "sails-generate-entities": "latest",
     "waterline-criteria": "^0.11.1"
   },

@@ -11,7 +11,7 @@ var registeredAuth = {
 
 describe('Model Controller', function () {
 
-  describe('Employee with Admin Role', function () {
+  describe('Admin with Admin Role', function () {
 
     describe('#find()', function () {
 
@@ -30,7 +30,7 @@ describe('Model Controller', function () {
               'Model',
               'Permission',
               'Role',
-              'Employee'
+              'Admin'
             ]).length, 4);
 
             done(err || models.error);
@@ -42,7 +42,7 @@ describe('Model Controller', function () {
 
   });
 
-  describe('Employee with Public Role', function () {
+  describe('Admin with Public Role', function () {
 
     describe('#find()', function () {
 

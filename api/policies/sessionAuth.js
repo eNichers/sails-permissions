@@ -4,27 +4,27 @@ var _ = require('lodash');
  * sessionAuth
  *
  * @module      :: Policy
- * @description :: Simple policy to allow any authenticated employee
+ * @description :: Simple policy to allow any authenticated admin
  *                 Assumes that your login action in one of your controllers sets `req.session.authenticated = true;`
  * @docs        :: http://sailsjs.org/#!/documentation/concepts/Policies
  *
  */
 module.exports = function (req, res, next) {
-    // Employee is allowed, proceed to the next policy, 
+    // Admin is allowed, proceed to the next policy, 
     // or if this is the last policy, the controller 
 
-    var callback = function (employee) {
-        employee.isAdmin = employee.employeeName == sails.config.permissions.adminEmployeeName;
-        employee.isAnonymous = employee.employeeName == sails.config.permissions.anonymousEmployeename;
+    var callback = function (admin) {
+        admin.isAdmin = admin.adminName == sails.config.permissions.adminName;
+        admin.isAnonymous = admin.adminName == sails.config.permissions.anonymousAdminname;
 
-        PermissionService.findEmployeeModelPermissions(employee, function (modelPermissions) {
+        PermissionService.findAdminModelPermissions(admin, function (modelPermissions) {
 
             modelPermissions = _.transform(_.indexBy(modelPermissions, 'identity'),
                 function (result, val, key) {
                     result[key] = _.pluck(val.permissions, 'action');
                 });
 
-            employee.can = function (action, model) {
+            admin.can = function (action, model) {
                 if (!model) {
                     model = req.options.controller;
                 }
@@ -38,22 +38,22 @@ module.exports = function (req, res, next) {
 
     if (!req.session.authenticated) {
         if (sails.config.permissions.anonymousDisabled) {
-            // Employee is not allowed
+            // Admin is not allowed
             // (default res.forbidden() behavior can be overridden in `config/403.js`)
             return res.forbidden('You are not permitted to perform this action.');
         }
         else {
-            EmployeeService.findAnonymousEmployee(function (employee) {
-                req.employee = employee;
-                callback(req.employee);
+            AdminService.findAnonymousAdmin(function (admin) {
+                req.admin = admin;
+                callback(req.admin);
             });
         }
 
     }
     else {
-        req.employee = req.user;
+        req.admin = req.user;
         delete req.user; 
-        callback(req.employee);
+        callback(req.admin);
     }
 
 
