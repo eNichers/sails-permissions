@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tjwebb/sails-permissions.git"
+    "url": "git+https://github.com/eNichers/sails-permissions.git"
   },
   "keywords": [
     "sails",
@@ -37,7 +37,7 @@
   "bugs": {
     "url": "https://github.com/tjwebb/sails-permissions/issues"
   },
-  "homepage": "https://github.com/tjwebb/sails-permissions",
+  "homepage": "https://github.com/eNichers/sails-permissions",
   "devDependencies": {
     "jshint": "^2.8.0",
     "mocha": "^2.x.x",
@@ -67,6 +67,6 @@
   "readmeFilename": "README.md",
   "_id": "sails-permissions@1.4.4",
   "_shasum": "27ffaecc1a37d828ba5cc376763e487f6171ba90",
-  "_from": "git+https://github.com/eNichers/sails-permissions.git#hosting",
+  "_from": "git+https://github.com/eNichers/sails-permissions.git#admin",
   "_resolved": "git+https://github.com/eNichers/sails-permissions.git#e3ab28f7ebedfaf4929da55b9352ca7a46f6d42d"
 }
