@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var permissionPolicies = [
     'passport',
     'sessionAuth',
