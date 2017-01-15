@@ -1,4 +1,5 @@
 var Promise = require('bluebird');
+var _ = require('lodash');
 // var methodMap = {
 //     POST: 'create',
 //     GET: 'read',

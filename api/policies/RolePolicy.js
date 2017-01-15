@@ -1,3 +1,4 @@
+var _ = require('lodash');
 // api/policies/RolePolicy.js
 /**
  * RolePolicy

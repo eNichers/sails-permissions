@@ -1,3 +1,4 @@
+var _ = require('lodash');
 /**
  * Create admin employee.
  * @param adminRole - the admin role which grants all permissions
