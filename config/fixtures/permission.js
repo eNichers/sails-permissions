@@ -96,7 +96,7 @@ function grantAdminPermissions(roles, models, admin) {
 
             var newPermission = {
                 model: model.id,
-                action: action,
+                action: action.toLowerCase(),
                 role: adminRole.id,
             };
 
