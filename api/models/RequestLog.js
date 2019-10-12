@@ -6,14 +6,14 @@
 */
 
 module.exports = {
-  autoPK: false,
-  autoCreatedBy: false,
-  autoUpdatedAt: false,
+  primaryKey: 'id',
+  dontUseObjectIds: true, // This allows you to create models using the sails-mongo adapter with primary keys that are arbitrary strings or numbers, not just big long UUID-looking things
+
 
   attributes: {
     id: {
       type: 'string',
-      primaryKey: true
+      columnName: '_id' // When using `sails-mongo`, primary keys MUST have `columnName: '_id'`
     },
     ipAddress: {
       type: 'string'
@@ -23,7 +23,7 @@ module.exports = {
     },
     url: {
       type: 'string',
-      url: true
+      isURL: true
     },
     body: {
       type: 'json'
