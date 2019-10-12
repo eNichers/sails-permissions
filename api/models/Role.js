@@ -15,8 +15,8 @@ module.exports = {
   attributes: {
     name: {
       type: 'string',
-      index: true,
-      notNull: true,
+      // index: true,
+      allowNull: false,
       unique: true
     },
     admins: {
@@ -26,7 +26,7 @@ module.exports = {
     active: {
       type: 'boolean',
       defaultsTo: true,
-      index: true
+      // index: true
     },
     permissions: {
       collection: 'Permission',
