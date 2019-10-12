@@ -1,65 +1,57 @@
-var Promise = require('bluebird');
+var _ = require('lodash');
 
 // var grants = {
-//     admin: [{
-//         action: 'create'
-//     }, {
-//         action: 'read'
-//     }, {
-//         action: 'update'
-//     }, {
-//         action: 'delete'
-//     }],
-//     registered: [{
-//         action: 'create'
-//     }, {
-//         action: 'read'
-//     }],
-//     public: [{
-//         action: 'read'
-//     }]
+//   admin: [
+//     { action: 'create' },
+//     { action: 'read' },
+//     { action: 'update' },
+//     { action: 'delete' }
+//   ],
+//   registered: [
+//     { action: 'create' },
+//     { action: 'read' }
+//   ],
+//   public: [
+//     { action: 'read' }
+//   ]
 // };
-
 
 // var modelRestrictions = {
-//     registered: [
-//         'Role',
-//         'Permission',
-//         'Admin',
-//         'Passport'
-//     ],
-//     public: [
-//         'Role',
-//         'Permission',
-//         'Admin',
-//         'Model',
-//         'Passport'
-//     ]
+//   registered: [
+//     'Role',
+//     'Permission',
+//     'User',
+//     'Passport'
+//   ],
+//   public: [
+//     'Role',
+//     'Permission',
+//     'User',
+//     'Model',
+//     'Passport'
+//   ]
 // };
-
-
 
 // TODO let admins override this in the actual model definition
 
 /**
  * Create default Role permissions
  */
-exports.create = function (roles, models, admin) {
+exports.create = function (roles, models, admin, config) {
 
     return Promise.all([
-            grantAdminPermissions(roles, models, admin),
+            grantAdminPermissions(roles, models, admin, config),
             //grantPublicPermissions(roles, models),
             // ,
-            // grantRegisteredPermissions(roles, models, admin)
+            // grantRegisteredPermissions(roles, models, admin,  config)
         ])
         .then(function (permissions) {
-
             //sails.log.verbose('created', permissions.length, 'permissions');
             return permissions;
         });
 };
 
-function grantAdminPermissions(roles, models, admin) {
+function grantAdminPermissions(roles, models, admin, config) {
     var adminRole = _.find(roles, {
         name: 'admin'
     });
@@ -100,7 +92,7 @@ function grantAdminPermissions(roles, models, admin) {
                 role: adminRole.id,
             };
 
-            return Permission.findOrCreate(newPermission, newPermission);
+            return sails.models.permission.findOrCreate(newPermission, newPermission);
 
         });
 
@@ -110,11 +102,11 @@ function grantAdminPermissions(roles, models, admin) {
 }
 
 
-// function grantRegisteredPermissions(roles, models, admin) {
+// function grantRegisteredPermissions(roles, models, admin, config) {
 //     var registeredRole = _.find(roles, {
 //         name: 'registered'
 //     });
-//     var permissions = [{
+//     var basePermissions = [{
 //         model: _.find(models, {
 //                 name: 'Permission'
 //             })
@@ -146,10 +138,28 @@ function grantAdminPermissions(roles, models, admin) {
 //         relation: 'owner'
 //     }];
 
-//     return Promise.all(
-//         _.map(permissions, function (permission) {
-//             return Permission.findOrCreate(permission, permission);
-//         })
-//     );
+//    XXX copy/paste from above. terrible. improve.
+//    var permittedModels = _.filter(models, function (model) {
+//      return !_.contains(modelRestrictions.registered, model.name);
+//    });
+//    var grantPermissions = _.flatten(_.map(permittedModels, function (modelEntity) {
+
+//      grants.registered = _.get(config, 'grants.registered') || grants.registered;
+
+//      return _.map(grants.registered, function (permission) {
+//          return {
+//              model: modelEntity.id,
+//              action: permission.action,
+//              role: registeredRole.id,
+//          };
+//      });
+//    }));
+
+
+//  return Promise.all(
+//    [ ...basePermissions, ...grantPermissions ].map(permission => {
+//      return sails.models.permission.findOrCreate(permission, permission);
+//    })
+//  );
 // }
 

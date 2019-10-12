@@ -40,7 +40,7 @@ module.exports = function (req, res, next) {
         if (sails.config.permissions.anonymousDisabled) {
             // Admin is not allowed
             // (default res.forbidden() behavior can be overridden in `config/403.js`)
-            return res.forbidden('You are not permitted to perform this action.');
+            return res.send(403, { error: 'You are not permitted to perform this action.' });
         }
         else {
             AdminService.findAnonymousAdmin(function (admin) {

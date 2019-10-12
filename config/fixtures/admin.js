@@ -2,6 +2,7 @@
  * Create admin admin.
  * @param adminRole - the admin role which grants all permissions
  */
+import _ from 'lodash'
 exports.create = function (roles, adminModel) {
     if (_.isEmpty(sails.config.permissions.adminName)) {
         throw new Error('sails.config.permissions.adminName is not set');
@@ -14,14 +15,14 @@ exports.create = function (roles, adminModel) {
     }
 
 
-    return Admin.findOne({
+    return sails.models.admin.findOne({
             adminName: sails.config.permissions.adminName
         })
         .then(function (admin) {
             if (admin) return admin;
 
             sails.log.info('sails-permissions: admin admin does not exist; creating...');
-            return Admin.register({
+            return sails.models.admin.register({
                 adminName: sails.config.permissions.adminName,
                 password: sails.config.permissions.adminPassword,
                 email: sails.config.permissions.adminEmail,

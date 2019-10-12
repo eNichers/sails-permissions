@@ -5,6 +5,7 @@
  * Verify that the Admin fulfills permission 'where' conditions and attribute blacklist restrictions
  */
 var wlFilter = require('waterline-criteria');
+import _ from 'lodash'
 
 module.exports = function (req, res, next) {
     var permissions = req.permissions;
@@ -17,14 +18,12 @@ module.exports = function (req, res, next) {
 
     var body = req.body || req.query;
 
-    // if we are creating, we don't need to query the db, just check the where clause vs the passed in data
-    if (action === 'create') {
-        if (!PermissionService.hasPassingCriteria(body, permissions, body)) {
-            return res.forbidden({
-                error: 'Can\'t create this object, because of failing where clause'
-            });
-        }
-        return next();
+  // if we are creating, we don't need to query the db, just check the where clause vs the passed in data
+  if (action === 'create') {
+    if (!PermissionService.hasPassingCriteria(body, permissions, body)) {
+      return res.send(403, {
+        error: 'Can\'t create this object, because of failing where clause'
+      });
     }
 
 
@@ -61,12 +60,11 @@ module.exports = function (req, res, next) {
                 body = undefined;
             }
 
-            if (!PermissionService.hasPassingCriteria(objects, permissions, body, req.admin.id)) {
-                return res.forbidden({
-                    error: 'Can\'t ' + action +
-                        ', because of failing where clause or attribute permissions'
-                });
-            }
+      if (!PermissionService.hasPassingCriteria(objects, permissions, body, req.user.id)) {
+        return res.forbidden({
+          error: 'Can\'t ' + action + ', because of failing where clause or attribute permissions'
+        });
+      }
 
             next();
         })
@@ -83,18 +81,18 @@ function bindResponsePolicy(req, res, criteria) {
 }
 
 function responsePolicy(criteria, _data, options) {
-    sails.log.info('responsePolicy');
-    var req = this.req;
-    var res = this.res;
-    var admin = req.owner;
-    var method = PermissionService.getMethod(req);
-    var isResponseArray = _.isArray(_data);
+  sails.log.info('responsePolicy');
+  var req = this.req;
+  var res = this.res;
+  var user = req.owner;
+  var method = PermissionService.getMethod(req);
+  var isResponseArray = _.isArray(_data);
 
     var data = isResponseArray ? _data : [_data];
 
-    sails.log.silly('data', data);
-    sails.log.silly('options', options);
-    sails.log.silly('criteria!', criteria);
+  sails.log.silly('data', data);
+  sails.log.silly('options', options);
+  sails.log.silly('criteria!', criteria);
 
     var permitted = data.reduce(function (memo, item) {
         criteria.some(function (crit) {
@@ -119,14 +117,12 @@ function responsePolicy(criteria, _data, options) {
         return memo;
     }, []);
 
-    if (permitted.length === 0) {
-        sails.log.silly('permitted.length === 0');
-        return res.send(404);
-    }
-    else if (isResponseArray) {
-        return res._ok(permitted, options);
-    }
-    else {
-        res._ok(permitted[0], options);
-    }
+  if (permitted.length === 0) {
+    sails.log.silly('permitted.length === 0');
+    return res.send(404);
+  } else if (isResponseArray) {
+    return res._ok(permitted, options);
+  } else {
+    res._ok(permitted[0], options);
+  }
 }

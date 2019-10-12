@@ -1,21 +1,12 @@
-var Promise = require('bluebird');
 /**
  * Creates default Roles
  *
  * @public
  */
 exports.create = function () {
-    return Promise.all([
-        Role.findOrCreate({
-            name: 'admin'
-        }, {
-            name: 'admin'
-        }),
-        //Role.findOrCreate({ name: 'registered' }, { name: 'registered' }),
-        Role.findOrCreate({
-            name: 'public'
-        }, {
-            name: 'public'
-        })
-    ]);
+  return Promise.all([
+    sails.models.role.findOrCreate({ name: 'admin' }, { name: 'admin' }),
+    //sails.models.role.findOrCreate({ name: 'registered' }, { name: 'registered' }),
+    sails.models.role.findOrCreate({ name: 'public' }, { name: 'public' })
+  ]);
 };

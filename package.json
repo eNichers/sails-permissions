@@ -1,10 +1,11 @@
 {
   "name": "sails-permissions",
-  "version": "1.4.4",
+  "version": "2.2.0",
   "description": "Comprehensive user permissions and entitlements system for sails.js and Waterline. Supports user authentication with passport.js, role-based permissioning, object ownership, and row-level security.",
-  "main": "api/hooks/sails-permissions.js",
+  "main": "dist/api/hooks/permissions/index.js",
   "scripts": {
-    "test": "rm -rf .tmp && mocha --reporter spec"
+    "test": "gulp && mocha --reporter spec --compilers js:babel/register",
+    "prepublish": "gulp"
   },
   "repository": {
     "type": "git",
@@ -39,28 +40,38 @@
   },
   "homepage": "https://github.com/eNichers/sails-permissions",
   "devDependencies": {
+    "babel": "^5.8.21",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.2.1",
     "jshint": "^2.8.0",
     "mocha": "^2.x.x",
     "request": "^2.58.0",
-    "sails": ">0.10.0",
-    "sails-disk": "^0.10.7",
-    "supertest": "^0.15.0"
+    "sails": "balderdashy/sails",
+    "sails-memory": "^0.10.5",
+    "supertest": "^0.15.0",
+    "waterline-postgresql": "^0.12.0"
   },
   "dependencies": {
-    "bluebird": "^2.3.6",
     "fnv-plus": "^1.2.10",
     "lodash": "^3.10.0",
+    "marlinspike": "^1.0",
     "pluralize": "^1.0.1",
     "sails-auth": "git+https://github.com/eNichers/sails-auth#admin",
     "sails-generate-entities": "latest",
     "waterline-criteria": "^0.11.1"
   },
+  "bundledDependencies": [
+    "fnv-plus",
+    "lodash",
+    "pluralize"
+  ],
   "engines": {
     "node": ">= 0.10",
     "npm": ">= 2.3"
   },
   "sails": {
-    "isHook": true
+    "isHook": true,
+    "hookName": "permissions"
   },
   "gitHead": "b2f1db802bb39bc624ba785f5153517085b255bd",
   "readme": "# <img src=\"http://cdn.tjw.io/images/sails-logo.png\" height='43px' />-permissions\n\n[![Gitter][gitter-image]][gitter-url]\n[![NPM version][npm-image]][npm-url]\n[![Build status][travis-image]][travis-url]\n[![Dependency Status][daviddm-image]][daviddm-url]\n\nComprehensive sails.js user permissions and entitlements system. Supports user authentication with passport.js, role-based permissioning, object ownership, and row-level security.\n\n## Install\n```sh\n$ npm install sails-permissions sails-auth --save\n```\n\n## Quickstart\n\n**Note:** Complete documentation available in the sails-permissions wiki: https://github.com/tjwebb/sails-permissions/wiki\n\n### 1. configure sailsrc\n\n```json\n{\n  \"generators\": {\n    \"modules\": {\n      \"permissions-api\": \"sails-permissions/generator\"\n    }\n  }\n}\n```\n\n### 2. run generator\n\n```sh\n$ sails generate permissions-api\n```\n\n### 3. Set environment variables\n\n| variable | description | default |\n|:---|:---|:---|\n| `ADMIN_USERNAME` | admin username | `admin` |\n| `ADMIN_EMAIL` | admin user email address | `admin@example.com` |\n| `ADMIN_PASSWORD` | admin user password | `admin1234` |\n\n##### e.g in config/local.js (file is in .gitignore)\n```\nsails.config.permissions.adminUsername = 'admin'\nsails.config.permissions.adminEmail = 'admin@example.com'\nsails.config.permissions.adminPassword = 'admin1234'\n```\n#### 4. update configs\n\n#### config/policies.js\n```js\n  '*': [\n    'basicAuth',\n    'passport',\n    'sessionAuth',\n    'ModelPolicy',\n    'AuditPolicy',\n    'OwnerPolicy',\n    'PermissionPolicy',\n    'RolePolicy',\n    'CriteriaPolicy'\n  ],\n\n  AuthController: {\n    '*': [ 'passport' ]\n  }\n```\n\n#### 5. Login\nYou can now login using the aforementioned default login data or the admin settings you specified using the `/auth/local` endpoint.\n```json\n{\n    \"identifier\": \"admin@example.com\",\n    \"password\": \"admin1234\"\n}\n```\n\n## License\nMIT\n\n## Maintained By\n[<img src='http://i.imgur.com/zM0ynQk.jpg' height='36px'>](http://balderdash.co)\n\n<img src='http://i.imgur.com/NsAdNdJ.png'>\n\n[sails-logo]: http://cdn.tjw.io/images/sails-logo.png\n[sails-url]: https://sailsjs.org\n[npm-image]: https://img.shields.io/npm/v/sails-permissions.svg?style=flat-square\n[npm-url]: https://npmjs.org/package/sails-permissions\n[travis-image]: https://img.shields.io/travis/tjwebb/sails-permissions.svg?style=flat-square\n[travis-url]: https://travis-ci.org/tjwebb/sails-permissions\n[daviddm-image]: http://img.shields.io/david/tjwebb/sails-permissions.svg?style=flat-square\n[daviddm-url]: https://david-dm.org/tjwebb/sails-permissions\n[gitter-image]: http://img.shields.io/badge/+%20GITTER-JOIN%20CHAT%20%E2%86%92-1DCE73.svg?style=flat-square\n[gitter-url]: https://gitter.im/tjwebb/sails-permissions\n",

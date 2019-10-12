@@ -1,12 +1,12 @@
-var Promise = require('bluebird');
-// var methodMap = {
-//     POST: 'create',
-//     GET: 'read',
-//     PUT: 'update',
-//     DELETE: 'delete'
-// };
+var _ = require('lodash');
 
-var findRecords = require('sails/lib/hooks/blueprints/actions/find');
+var methodMap = {
+  POST: 'create',
+  GET: 'read',
+  PUT: 'update',
+  DELETE: 'delete'
+};
+
 var wlFilter = require('waterline-criteria');
 
 var anonymousPermessionsCache = null;
@@ -68,67 +68,50 @@ module.exports = {
         };
     },
 
-    /**
-     * Find objects that some arbitrary action would be performed on, given the
-     * same request.
-     *
-     * @param options.model
-     * @param options.query
-     *
-     * TODO this will be less expensive when waterline supports a caching layer
-     */
-    findTargetObjects: function (req) {
-
-
-        // handle add/remove routes that have :parentid as the primary key field
-        var originalId;
-        if (req.params.parentid) {
-            originalId = req.params.id;
-            req.params.id = req.params.parentid;
+    return new Promise(function(resolve, reject) {
+        sails.hooks.blueprints.middleware.find(req, {
+          ok: resolve,
+          serverError: reject,
+          // this isn't perfect, since it returns a 500 error instead of a 404 error
+          // but it is better than crashing the app when a record doesn't exist
+          notFound: reject
+        });
+      })
+      .then(function(result) {
+        if (originalId !== undefined) {
+          req.params.id = originalId;
         }
 
-        return new Promise(function (resolve, reject) {
-                findRecords(req, {
-                    ok: resolve,
-                    serverError: reject,
-                    // this isn't perfect, since it returns a 500 error instead of a 404 error
-                    // but it is better than crashing the app when a record doesn't exist
-                    notFound: reject
-                });
-            })
-            .then(function (result) {
-                if (originalId !== undefined) {
-                    req.params.id = originalId;
-                }
-                return result;
-            });
-    },
+  /**
+   * Query Permissions that grant privileges to a role/user on an action for a
+   * model.
+   *
+   * @param options.method
+   * @param options.model
+   * @param options.user
+   */
+  findModelPermissions: function(options) {
+    // var action = options.action;
+    var action = PermissionService.getMethod(options.method);
+    var permissionCriteria = {
+      model: options.model.id,
+      action: action
+    };
 
-    /**
-     * Query Permissions that grant privileges to a role/admin on an action for a
-     * model.
-     *
-     * @param options.method
-     * @param options.model
-     * @param options.admin
-     */
-    findModelPermissions: function (options) {
-        var action = options.action;
-        return Admin.findOne(options.admin.id)
-            .populate('roles')
-            .then(function (admin) {
-                return Permission.find({
-                        model: options.model.id,
-                        action: action,
-                        or: [{
-                            admin: admin.id
-                        }, {
-                            role: _.pluck(admin.roles, 'id')
-                        }]
-                    })
-                    .populate('criteria');
-            });
-    },
+    return Admin.findOne(options.admin.id)
+        .populate('roles')
+        .then(function(admin) {
+            var permissionCriteria = {
+                model: options.model.id,
+                action: action,
+                or: [
+                    { role: _.pluck(user.roles, 'id') },
+                    { admin: admin.id }
+                ]
+            };
+            return Permission.find(permissionCriteria).populate('criteria')
+      });
+  },
 
     /**
      * Given a list of objects, determine if they all satisfy at least one permission's
@@ -222,19 +205,18 @@ module.exports = {
      * Build an error message
      */
     getErrorMessage: function (options) {
+        var admin = options.user.email || options.user.adminName
         return [
-            'Admin', options.admin.email, 'is not permitted to', options.method, options.model
-            .globalId
+            'Admin', admin, 'is not permitted to', options.method, options.model.globalId || options.model.name
         ].join(' ');
     },
 
     /**
      * Given an action, return the CRUD method it maps to.
      */
-    // getMethod: function (method) {
-    //     return methodMap[method];
-    // },
-
+    getMethod: function (method) {
+         return methodMap[method];
+    },
 
     /**
      * create a new role
@@ -258,16 +240,16 @@ module.exports = {
 
 
         // look up the model id based on the model name for each permission, and change it to an id
-        ok = ok.then(function () {
-            return Promise.map(permissions, function (permission) {
+        ok = ok.then(function() {
+            return Promise.all(permissions.map(function(permission) {
                 return Model.findOne({
-                        name: permission.model
-                    })
-                    .then(function (model) {
-                        permission.model = model.id;
-                        return permission;
-                    });
-            });
+                    name: permission.model
+                })
+                .then(function(model) {
+                    permission.model = model.id;
+                    return permission;
+                });
+            }));
         });
 
         // look up admin ids based on adminNames, and replace the names with ids
@@ -308,7 +290,7 @@ module.exports = {
         }
 
         // look up the models based on name, and replace them with ids
-        var ok = Promise.map(permissions, function (permission) {
+        var ok = Promise.all(permissions.map(function(permission) {
             var findRole = permission.role ? Role.findOne({
                 name: permission.role
             }) : null;
@@ -327,8 +309,7 @@ module.exports = {
                         permission.admin = admin.id;
                     }
                     else {
-                        return Promise.reject(new Error(
-                            'no role or admin specified'));
+                        return Promise.reject(new Error('no role or admin specified'));
                     }
                 });
         });
@@ -424,7 +405,7 @@ module.exports = {
             name: options.model
         })]);
 
-        ok = ok.spread(function (role, admin, model) {
+        ok = ok.then(([ role, user, model ]) => {
 
             var query = {
                 model: model.id,
@@ -464,8 +445,7 @@ module.exports = {
             return PermissionService.isAllowedToPerformSingle(admin.id, action, model, body)
                 (objects);
         }
-        return new Promise.map(objects, PermissionService.isAllowedToPerformSingle(admin.id,
-                action, model, body))
+        return Promise.all(objects.map(PermissionService.isAllowedToPerformSingle(admin.id, action, model, body)))
             .then(function (allowedArray) {
                 return allowedArray.every(function (allowed) {
                     return allowed === true;
