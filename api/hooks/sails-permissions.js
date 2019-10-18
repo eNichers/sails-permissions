@@ -116,9 +116,11 @@ function initializeFixtures(sails) {
         })
         .then(function (admin) {
             sails.log.verbose('sails-permissions: created admin:', admin);
-            admin.createdBy = admin.id;
-            admin.owner = admin.id;
-            return admin.save();
+            return Admin.updateOne({ adminName: sails.config.permissions.adminName })
+                .set({
+                    createdBy: admin.id,
+                    owner: admin.id,
+                });
         })
         .then(function (admin) {
 
@@ -140,11 +142,11 @@ function installModelOwnership(sails) {
         _.defaults(model.attributes, {
             createdBy: {
                 model: 'Admin',
-                index: true
+                // index: true
             },
             owner: {
                 model: 'Admin',
-                index: true
+                // index: true
             }
         });
     });

@@ -53,9 +53,8 @@ module.exports = function (req, res, next) {
                         return next();
                     }
                     if (PermissionService.hasForeignObjects(objects, req.admin)) {
-                        return res.forbidden({
-                            error: 'Cannot perform action [' + action +
-                                '] on foreign object'
+                        return res.send(403, {
+                            error: 'Cannot perform action [' + action + '] on foreign object'
                         });
                     }
                     next();

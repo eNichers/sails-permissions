@@ -344,14 +344,12 @@ describe('Admin Controller', function() {
           })
           .expect(200)
           .end(function(err, res) {
-
             var admin = res.body;
 
             assert.ifError(err);
             assert.equal(admin.email, 'newadminupdated@example.com');
 
             done(err);
-
           });
 
       });
@@ -436,11 +434,10 @@ describe('Admin Controller', function() {
         request(sails.hooks.http.app)
           .get('/permission')
           .set('Authorization', newAdminAuth.Authorization)
-          .send({
-            name: 'updatedInactiveName'
-          })
           .expect(404)
+        //   .expect(200)
           .end(function(err, res) {
+            assert.equal(res.body.length, 0);
             done(err);
           });
       });
@@ -462,11 +459,8 @@ describe('Admin Controller', function() {
             assert(_.isString(admin.error), JSON.stringify(admin));
 
             done(err);
-
           });
-
       });
-
 
       it('should not be able to read another admin', function(done) {
 

@@ -19,44 +19,41 @@ _.merge(exports, {
     /**
      * Attach default Role to a new Admin
      */
-    afterCreate: [
-        function setOwner(admin, next) {
-            sails.log.verbose('Admin.afterCreate.setOwner', admin);
-            Admin
-                .update({
-                    id: admin.id
-                }, {
-                    owner: admin.id
-                })
-                .then(function (admin) {
-                    next();
-                })
-                .catch(function (e) {
-                    sails.log.error(e);
-                    next(e);
-                });
-        },
-        function attachDefaultRole(admin, next) {
-            // Promise.bind({ }, Admin.findOne(admin.id)
-            //   .populate('roles')
-            //   .then(function (admin) {
-            //     this.admin = admin;
-            //     return Role.findOne({ name: 'registered' });
-            //   })
-            //   .then(function (role) {
-            //     this.admin.roles.add(role.id);
-            //     return this.admin.save();
-            //   })
-            //   .then(function (updatedAdmin) {
-            //     sails.log.silly('role "registered" attached to admin', this.admin.adminName);
-            //     next();
-            //   })
-            //   .catch(function (e) {
-            //     sails.log.error(e);
-            //     next(e);
-            //   })
-            // );
-            next()
-        }
-    ]
+    afterCreate: (admin, next) => {
+        sails.log.verbose('Admin.afterCreate.setOwner', admin);
+        Admin
+            .update({
+                id: admin.id
+            }, {
+                owner: admin.id
+            })
+            .then(function (admin) {
+                next();
+            })
+            .catch(function (e) {
+                sails.log.error(e);
+                next(e);
+            });
+
+        // Promise.bind({ }, Admin.findOne(admin.id)
+        //   .populate('roles')
+        //   .then(function (admin) {
+        //     this.admin = admin;
+        //     return Role.findOne({ name: 'registered' });
+        //   })
+        //   .then(function (role) {
+        //     this.admin.roles.add(role.id);
+        //     return this.admin.save();
+        //   })
+        //   .then(function (updatedAdmin) {
+        //     sails.log.silly('role "registered" attached to admin', this.admin.adminName);
+        //     next();
+        //   })
+        //   .catch(function (e) {
+        //     sails.log.error(e);
+        //     next(e);
+        //   })
+        // );
+        // next()
+    }
 });

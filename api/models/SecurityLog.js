@@ -6,14 +6,11 @@
 */
 
 module.exports = {
-  autoPK: false,
-  autoUpdatedAt: false,
-  autoCreatedAt: false,
+  // primaryKey: 'request', // causes an error if not commented because it forces a type to the attribute
 
   attributes: {
     request: {
-      model: 'RequestLog',
-      primaryKey: true
+      model: 'RequestLog'
     }
   }
 };
