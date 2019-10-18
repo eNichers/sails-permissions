@@ -4,7 +4,7 @@
  * @description
  *   The actions a Role is granted on a particular Model and its attributes
  */
-import _ from 'lodash'
+var _ = require('lodash');
 module.exports = {
   autoCreatedBy: false,
 

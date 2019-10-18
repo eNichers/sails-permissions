@@ -24,11 +24,7 @@ module.exports = {
         })
         .populate('roles')
         .then(function (admin) {
-            return Model.find({}, {
-                    action: 1,
-                    attributes: 0
-
-                })
+            return Model.find({})
                 .populate('permissions', {
                     role: admin.roles[0].id
                 }).then(function(modelPermissions){
@@ -68,29 +64,51 @@ module.exports = {
         };
     },
 
-    return new Promise(function(resolve, reject) {
-        sails.hooks.blueprints.middleware.find(req, {
-          ok: resolve,
-          serverError: reject,
-          // this isn't perfect, since it returns a 500 error instead of a 404 error
-          // but it is better than crashing the app when a record doesn't exist
-          notFound: reject
-        });
-      })
-      .then(function(result) {
-        if (originalId !== undefined) {
-          req.params.id = originalId;
+    /**
+     * Find objects that some arbitrary action would be performed on, given the
+     * same request.
+     *
+     * @param options.model
+     * @param options.query
+     *
+     * TODO this will be less expensive when waterline supports a caching layer
+     */
+    findTargetObjects: function (req) {
+
+
+        // handle add/remove routes that have :parentid as the primary key field
+        var originalId;
+        if (req.params.parentid) {
+            originalId = req.params.id;
+            req.params.id = req.params.parentid;
         }
 
-  /**
-   * Query Permissions that grant privileges to a role/user on an action for a
-   * model.
-   *
-   * @param options.method
-   * @param options.model
-   * @param options.user
-   */
-  findModelPermissions: function(options) {
+        return new Promise(function (resolve, reject) {
+                sails.hooks.blueprints.middleware.find(req, {
+                    ok: resolve,
+                    serverError: reject,
+                    // this isn't perfect, since it returns a 500 error instead of a 404 error
+                    // but it is better than crashing the app when a record doesn't exist
+                    notFound: reject
+                });
+            })
+            .then(function (result) {
+                if (originalId !== undefined) {
+                    req.params.id = originalId;
+                }
+                return result;
+            });
+    },
+
+    /**
+    * Query Permissions that grant privileges to a role/user on an action for a
+    * model.
+    *
+    * @param options.method
+    * @param options.model
+    * @param options.user
+    */
+    findModelPermissions: function(options) {
     // var action = options.action;
     var action = PermissionService.getMethod(options.method);
     var permissionCriteria = {
@@ -111,7 +129,7 @@ module.exports = {
             };
             return Permission.find(permissionCriteria).populate('criteria')
       });
-  },
+    },
 
     /**
      * Given a list of objects, determine if they all satisfy at least one permission's
@@ -312,7 +330,7 @@ module.exports = {
                         return Promise.reject(new Error('no role or admin specified'));
                     }
                 });
-        });
+        }));
 
         ok = ok.then(function () {
             return Permission.create(permissions);

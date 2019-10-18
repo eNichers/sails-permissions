@@ -31,8 +31,8 @@ exports.create = function (roles, adminModel) {
                     })
                     .id
                 ],
-                createdBy: 1,
-                owner: 1,
+                createdBy: null,
+                owner: null,
                 model: adminModel.id
             });
         });

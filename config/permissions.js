@@ -6,6 +6,6 @@ module.exports.permissions = {
   adminPassword: process.env.ADMIN_PASSWORD || 'admin1234',
 
   afterEvents: [
-    'hook:auth:initialized'
+    // 'hook:auth:initialized'
   ]
 };

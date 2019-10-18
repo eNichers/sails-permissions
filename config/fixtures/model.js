@@ -9,7 +9,8 @@ exports.createModels = function () {
 
     var prefix = sails.config.permissions.controllersRoot;
     var startsWith = function (string, prefix) {
-        return string.slice(0, prefix.length) == prefix;
+        return prefix.length < string.length ?
+            (string.slice(0, prefix.length) == prefix) : (prefix.slice(0, string.length) == string);
     }
     var models = _.compact(_.map(sails.controllers, function (controller, name) {
         if(prefix && prefix.length > 0){
@@ -30,5 +31,5 @@ exports.createModels = function () {
         /// return Model.findOrCreate({
         //     name: model.name
         // }, model);
-    });
+    }));
 };

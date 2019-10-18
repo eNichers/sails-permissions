@@ -25,50 +25,52 @@ module.exports = function (req, res, next) {
         error: 'Can\'t create this object, because of failing where clause'
       });
     }
+    return next();
+  }
 
 
-    // set up response filters if we are not mutating an existing object
-    if (!_.contains(['update', 'delete'], action)) {
+  // set up response filters if we are not mutating an existing object
+  if (!_.contains(['update', 'delete'], action)) {
 
-        // get all of the where clauses and blacklists into one flat array
-        // if a permission has no criteria then it is always true
-        var criteria = _.compact(_.flatten(
-            _.map(
-                _.pluck(permissions, 'criteria'),
-                function (c) {
-                    if (c.length == 0) {
-                        return [{
-                            where: {}
-                        }];
-                    }
-                    return c;
+    // get all of the where clauses and blacklists into one flat array
+    // if a permission has no criteria then it is always true
+    var criteria = _.compact(_.flatten(
+        _.map(
+            _.pluck(permissions, 'criteria'),
+            function (c) {
+                if (c.length == 0) {
+                    return [{
+                        where: {}
+                    }];
                 }
-            )
-        ));
-
-        if (criteria.length) {
-            bindResponsePolicy(req, res, criteria);
-        }
-        return next();
-    }
-
-    PermissionService.findTargetObjects(req)
-        .then(function (objects) {
-
-            // attributes are not important for a delete request
-            if (action === 'delete') {
-                body = undefined;
+                return c;
             }
+        )
+    ));
 
-      if (!PermissionService.hasPassingCriteria(objects, permissions, body, req.user.id)) {
-        return res.forbidden({
-          error: 'Can\'t ' + action + ', because of failing where clause or attribute permissions'
-        });
-      }
+    if (criteria.length) {
+        bindResponsePolicy(req, res, criteria);
+    }
+    return next();
+  }
 
-            next();
-        })
-        .catch(next);
+  PermissionService.findTargetObjects(req)
+      .then(function (objects) {
+
+          // attributes are not important for a delete request
+          if (action === 'delete') {
+              body = undefined;
+          }
+
+          if (!PermissionService.hasPassingCriteria(objects, permissions, body, req.user.id)) {
+            return res.forbidden({
+              error: 'Can\'t ' + action + ', because of failing where clause or attribute permissions'
+            });
+          }
+
+          next();
+      })
+      .catch(next);
 };
 
 function bindResponsePolicy(req, res, criteria) {

@@ -104,7 +104,7 @@ class Permissions extends Marlinspike {
       })
       .then(roles => {
         this.roles = roles
-        var adminModel = _.find(this.models, { name: sails.config.permissions.controllersRoot+'admin' })
+        var adminModel = _.find(this.models, { name: 'admin' })
         return require(path.resolve(fixturesPath, 'admin')).create(this.roles, adminModel)
       })
       .then(() => {
